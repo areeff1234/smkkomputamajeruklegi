@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Admin Dashboard - SMK Komputama</title>
+
+<!-- Bootstrap (CDN) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<style>
+  :root{
+    --brand:#ffc107;
+    --dark:#0b2a4a;
+    --bg:#f4f6f9;
+  }
+  html,body{height:100%;}
+  body{
+    background:var(--bg);
+    font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    margin:0;
+  }
+
+  /* LAYOUT */
+  .app {
+    display:flex;
+    min-height:100vh;
+  }
+  /* SIDEBAR */
+  .sidebar {
+    width:250px;
+    background:linear-gradient(180deg,var(--dark), #0b3d6a);
+    color:#fff;
+    padding:18px 12px;
+    position:fixed;
+    top:0; left:0; bottom:0;
+    overflow:auto;
+  }
+  .sidebar h4{ font-weight:700; letter-spacing:0.2px; }
+  .sidebar .nav-link{
+    color:rgba(255,255,255,0.95);
+    margin:6px 0; border-radius:8px;
+    padding:10px 12px; display:flex; align-items:center;
+  }
+  .sidebar .nav-link .bi{ font-size:1.05rem; margin-right:10px; }
+  .sidebar .nav-link.active, .sidebar .nav-link:hover{
+    background:rgba(255,255,255,0.06);
+    transform:translateX(4px);
+  }
+
+  /* CONTENT */
+  .main {
+    margin-left:250px;
+    padding:22px;
+    flex:1;
+  }
+  .topbar {
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    margin-bottom:18px;
+  }
+  .card { border-radius:12px; }
+
+  /* TABLE SMALL */
+  .table-xs td, .table-xs th { padding:0.45rem 0.5rem; font-size:0.92rem; }
+
+  /* NOTIF */
+  .toast-container { position: fixed; top: 18px; right: 18px; z-index: 1200; }
+
+  /* SEARCH */
+  .search-input { max-width:320px; }
+
+  /* RESPONSIVE */
+  @media (max-width:900px){
+    .sidebar { position:relative; width:100%; height:auto; display:flex; gap:8px; overflow-x:auto; padding:10px; }
+    .main { margin-left:0; padding:12px; }
+  }
+
+  /* Tiny styles for list badges */
+  .badge-small { font-size:0.78rem; padding:0.25em 0.5em; border-radius:6px; }
+
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="d-flex align-items-center mb-3">
+      <img src="LOGO.png" alt="logo" width="42" height="42" class="rounded-circle me-2" onerror="this.style.display='none'">
+      <div>
+        <h4 class="mb-0">SMK KOMPUTAMA</h4>
+        <small class="text-white-50">Admin Portal</small>
+      </div>
+    </div>
+
+    <nav class="nav flex-column">
+      <a href="#" class="nav-link active" data-section="home"><i class="bi bi-speedometer2"></i>Dashboard</a>
+      <a href="#" class="nav-link" data-section="siswa"><i class="bi bi-people"></i>Data Siswa</a>
+      <a href="#" class="nav-link" data-section="guru"><i class="bi bi-person-badge"></i>Data Guru</a>
+      <a href="#" class="nav-link" data-section="pengumuman"><i class="bi bi-megaphone-fill"></i>Pengumuman</a>
+      <a href="#" class="nav-link" data-section="bukutamu"><i class="bi bi-chat-dots-fill"></i>Buku Tamu</a>
+      <a href="#" class="nav-link" data-section="ppdb"><i class="bi bi-person-plus-fill"></i>PPDB</a>
+      <a href="#" class="nav-link" data-section="laporan"><i class="bi bi-bar-chart-fill"></i>Statistik & Laporan</a>
+      <hr class="text-white-10">
+      <a href="portal-guru.html" class="nav-link"><i class="bi bi-box-arrow-in-right"></i>Buka Portal Guru</a>
+      <a href="portal-siswa.html" class="nav-link"><i class="bi bi-box-arrow-in-right"></i>Buka Portal Siswa</a>
+      <button id="logoutBtn" class="btn btn-sm btn-outline-light mt-3"><i class="bi bi-box-arrow-right"></i> Logout</button>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h3 class="mb-0">Dashboard Admin</h3>
+        <small class="text-muted">Kelola data siswa, guru, pengumuman, PPDB & buku tamu</small>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <input id="globalSearch" class="form-control form-control-sm search-input" placeholder="Cari nama / jurusan / judul...">
+        <button id="btnAddQuick" class="btn btn-sm btn-warning"><i class="bi bi-plus-circle"></i> Tambah Cepat</button>
+      </div>
+    </div>
+
+    <!-- SECTIONS -->
+    <!-- HOME / CARD SUMMARY -->
+    <section id="homeSection" class="section">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <div class="card shadow-sm p-3">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="mb-1">Total Siswa</h6>
+                <h3 id="statTotalSiswa">0</h3>
+              </div>
+              <div class="align-self-center">
+                <i class="bi bi-people-fill fs-2 text-warning"></i>
+              </div>
+            </div>
+            <small class="text-muted">Terakhir diperbarui otomatis</small>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card shadow-sm p-3">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="mb-1">Total Guru</h6>
+                <h3 id="statTotalGuru">0</h3>
+              </div>
+              <div class="align-self-center">
+                <i class="bi bi-person-badge fs-2 text-primary"></i>
+              </div>
+            </div>
+            <small class="text-muted">Staf pengajar aktif</small>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card shadow-sm p-3">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="mb-1">Pengumuman</h6>
+                <h3 id="statPengumuman">0</h3>
+              </div>
+              <div class="align-self-center">
+                <i class="bi bi-megaphone-fill fs-2 text-success"></i>
+              </div>
+            </div>
+            <small class="text-muted">Pengumuman aktif</small>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card shadow-sm p-3">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="mb-1">Pesan Buku Tamu</h6>
+                <h3 id="statBukuTamu">0</h3>
+              </div>
+              <div class="align-self-center">
+                <i class="bi bi-chat-left-text fs-2 text-info"></i>
+              </div>
+            </div>
+            <small class="text-muted">Pesan dari pengunjung</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-3 g-3">
+        <div class="col-md-7">
+          <div class="card shadow-sm p-3">
+            <h5 class="mb-3">Grafik Pendaftar per Jurusan</h5>
+            <canvas id="chartJurusan" height="120"></canvas>
+          </div>
+        </div>
+        <div class="col-md-5">
+          <div class="card shadow-sm p-3">
+            <h5 class="mb-3">Aktivitas Terbaru</h5>
+            <ul id="recentActivity" class="list-group list-group-flush small"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SISWA -->
+    <section id="siswaSection" class="section" style="display:none;">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h4>Data Siswa</h4>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-primary" id="exportSiswaBtn"><i class="bi bi-file-earmark-arrow-down"></i> Export CSV</button>
+          <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalSiswa" id="addSiswaBtn"><i class="bi bi-plus-circle"></i> Tambah Siswa</button>
+        </div>
+      </div>
+
+      <div class="card shadow-sm p-3">
+        <div class="mb-2 d-flex justify-content-between">
+          <div class="small text-muted">Tabel Data Siswa</div>
+          <div><input id="searchSiswa" class="form-control form-control-sm" placeholder="Cari siswa..."></div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped table-xs align-middle" id="tableSiswa">
+            <thead class="table-light">
+              <tr><th>#</th><th>NIS</th><th>Nama</th><th>Jurusan</th><th>Kelas</th><th>Aksi</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- GURU -->
+    <section id="guruSection" class="section" style="display:none;">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h4>Data Guru</h4>
+        <div>
+          <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalGuru" id="addGuruBtn"><i class="bi bi-plus-circle"></i> Tambah Guru</button>
+        </div>
+      </div>
+
+      <div class="card shadow-sm p-3">
+        <div class="table-responsive">
+          <table class="table table-striped table-xs align-middle" id="tableGuru">
+            <thead class="table-light"><tr><th>#</th><th>NIP</th><th>Nama</th><th>Mapel</th><th>Email</th><th>Aksi</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PENGUMUMAN -->
+    <section id="pengumumanSectionMain" class="section" style="display:none;">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h4>Pengumuman</h4>
+        <div>
+          <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalPengumuman"><i class="bi bi-plus-circle"></i> Tambah Pengumuman</button>
+        </div>
+      </div>
+
+      <div class="card shadow-sm p-3">
+        <ul id="listPengumuman" class="list-group list-group-flush"></ul>
+      </div>
+    </section>
+
+    <!-- BUKU TAMU -->
+    <section id="bukutamuSection" class="section" style="display:none;">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h4>Buku Tamu</h4>
+      </div>
+
+      <div class="card shadow-sm p-3">
+        <ul id="listBukuTamu" class="list-group list-group-flush"></ul>
+      </div>
+    </section>
+
+    <!-- PPDB -->
+    <section id="ppdbSectionMain" class="section" style="display:none;">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h4>PPDB - Pendaftar</h4>
+        <div class="d-flex gap-2">
+          <button id="exportPpdbBtn" class="btn btn-sm btn-success"><i class="bi bi-file-earmark-arrow-down"></i> Export CSV</button>
+          <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalPpdb"><i class="bi bi-plus-circle"></i> Tambah Manual</button>
+        </div>
+      </div>
+
+      <div class="card shadow-sm p-3">
+        <table class="table table-striped table-xs" id="tablePpdb">
+          <thead class="table-light"><tr><th>#</th><th>ID</th><th>Nama</th><th>Jurusan</th><th>Aksi</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- LAPORAN -->
+    <section id="laporanSection" class="section" style="display:none;">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="card shadow-sm p-3">
+            <h5>Laporan Ringkas</h5>
+            <p class="small text-muted">Anda dapat menyalin data ringkasan atau meng-export CSV dari tiap tabel.</p>
+            <pre id="reportArea" style="white-space:pre-wrap;background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #eee;"></pre>
+            <div class="d-flex gap-2 mt-2">
+              <button id="copyReportBtn" class="btn btn-sm btn-primary"><i class="bi bi-clipboard"></i> Salin Laporan</button>
+              <button id="downloadReportBtn" class="btn btn-sm btn-outline-primary"><i class="bi bi-download"></i> Download .txt</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card shadow-sm p-3">
+            <h5>Visual Statistik</h5>
+            <canvas id="chartLaporan" height="160"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <div id="toastMsg" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body"></div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<!-- Modal Siswa -->
+<div class="modal fade" id="modalSiswa" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <form id="formSiswa" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Tambah / Edit Siswa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="siswaIndex" value="">
+        <div class="row g-2">
+          <div class="col-md-4"><label class="form-label small">NIS</label><input id="siswaNIS" required class="form-control"></div>
+          <div class="col-md-8"><label class="form-label small">Nama</label><input id="siswaNama" required class="form-control"></div>
+          <div class="col-md-6"><label class="form-label small">Jurusan</label>
+            <select id="siswaJurusan" class="form-select">
+              <option>TKJ</option><option>TKR</option><option>Akuntansi</option><option>Perbankan</option>
+            </select>
+          </div>
+          <div class="col-md-6"><label class="form-label small">Kelas</label><input id="siswaKelas" class="form-control" placeholder="Contoh: X TKJ 1"></div>
+          <div class="col-12"><label class="form-label small">Catatan / Keterangan (opsional)</label><textarea id="siswaNote" class="form-control" rows="2"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-warning" type="submit">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Guru -->
+<div class="modal fade" id="modalGuru" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form id="formGuru" class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Tambah / Edit Guru</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="guruIndex" value="">
+        <div class="mb-2"><label class="form-label small">NIP</label><input id="guruNIP" class="form-control" required></div>
+        <div class="mb-2"><label class="form-label small">Nama</label><input id="guruNama" class="form-control" required></div>
+        <div class="mb-2"><label class="form-label small">Mapel</label><input id="guruMapel" class="form-control"></div>
+        <div class="mb-2"><label class="form-label small">Email</label><input id="guruEmail" type="email" class="form-control"></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-warning" type="submit">Simpan</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Pengumuman -->
+<div class="modal fade" id="modalPengumuman" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form id="formPengumuman" class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Tambah Pengumuman</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="mb-2"><label class="form-label small">Judul</label><input id="pengumumanJudul" class="form-control" required></div>
+        <div class="mb-2"><label class="form-label small">Isi</label><textarea id="pengumumanIsi" class="form-control" rows="4" required></textarea></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-success" type="submit">Tambah</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal PPDB -->
+<div class="modal fade" id="modalPpdb" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form id="formPpdb" class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Tambah Pendaftar PPDB</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="mb-2"><label class="form-label small">ID</label><input id="ppdbId" class="form-control" required></div>
+        <div class="mb-2"><label class="form-label small">Nama</label><input id="ppdbNama" class="form-control" required></div>
+        <div class="mb-2"><label class="form-label small">Jurusan</label><select id="ppdbJurusan" class="form-select"><option>TKJ</option><option>TKR</option><option>Akuntansi</option><option>Perbankan</option></select></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-success" type="submit">Tambah</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- BOOTSTRAP -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+/* ============================
+   Utilities & Initial Data
+   ============================ */
+
+const keys = {
+  siswa: 'komputama_siswa_v1',
+  guru: 'komputama_guru_v1',
+  pengumuman: 'komputama_pengumuman_v1',
+  bukutamu: 'komputama_bukutamu_v1',
+  ppdb: 'komputama_ppdb_v1',
+  activity: 'komputama_activity_v1'
+};
+
+function read(key){ try{ return JSON.parse(localStorage.getItem(key))||[] }catch(e){return []} }
+function write(key,val){ localStorage.setItem(key, JSON.stringify(val)); }
+
+/* seed default (only if empty) */
+if(!localStorage.getItem(keys.siswa)){
+  const seedSiswa = [
+    {nis:'20231001', nama:'Ahmad Rifai', jurusan:'TKJ', kelas:'X TKJ 1'},
+    {nis:'20231002', nama:'Siti Aisyah', jurusan:'Akuntansi', kelas:'X Akuntansi 1'},
+    {nis:'20231003', nama:'Budi Santoso', jurusan:'TKR', kelas:'X TKR 1'}
+  ];
+  write(keys.siswa, seedSiswa);
+}
+if(!localStorage.getItem(keys.guru)){
+  const seedGuru = [
+    {nip:'1001', nama:'Rumirin, S.Kom', mapel:'TKJ', email:'rumirin@smk.com'},
+    {nip:'1002', nama:'Siti Marlina, S.Ak', mapel:'Akuntansi', email:'siti@smk.com'}
+  ];
+  write(keys.guru, seedGuru);
+}
+if(!localStorage.getItem(keys.pengumuman)){
+  write(keys.pengumuman, [{judul:'PPDB Dibuka', isi:'Pendaftaran dibuka mulai 1 Mei 2025.'}]);
+}
+
+/* Tiny toast helper */
+const toastEl = document.getElementById('toastMsg');
+const toast = new bootstrap.Toast(toastEl);
+function showToast(msg){
+  toastEl.querySelector('.toast-body').textContent = msg;
+  toast.show();
+  // also push to activity
+  const act = read(keys.activity);
+  act.unshift({time: new Date().toLocaleString('id-ID'), text: msg});
+  write(keys.activity, act.slice(0,50));
+  renderRecentActivity();
+}
+
+/* Recent activity render */
+function renderRecentActivity(){
+  const list = document.getElementById('recentActivity');
+  const act = read(keys.activity);
+  list.innerHTML = act.slice(0,8).map(a => `<li class="list-group-item small">${a.time} — ${a.text}</li>`).join('') || '<li class="list-group-item small text-muted">Belum ada aktivitas</li>';
+}
+
+/* ============================
+   Navigation (sidebar)
+   ============================ */
+const sections = {
+  home: document.getElementById('homeSection'),
+  siswa: document.getElementById('siswaSection'),
+  guru: document.getElementById('guruSection'),
+  pengumuman: document.getElementById('pengumumanSectionMain'),
+  bukutamu: document.getElementById('bukutamuSection'),
+  ppdb: document.getElementById('ppdbSectionMain'),
+  laporan: document.getElementById('laporanSection')
+};
+document.querySelectorAll('.sidebar .nav-link').forEach(link=>{
+  link.addEventListener('click', (e)=>{
+    e.preventDefault();
+    const sec = link.dataset.section;
+    // toggle active
+    document.querySelectorAll('.sidebar .nav-link').forEach(n=>n.classList.remove('active'));
+    link.classList.add('active');
+    // show/hide
+    Object.keys(sections).forEach(k=>{
+      sections[k].style.display = (k===sec)? '' : 'none';
+    });
+    // update charts if required
+    if(sec === 'home') refreshCharts();
+    if(sec === 'laporan') renderReport();
+  });
+});
+
+/* Logout button */
+document.getElementById('logoutBtn').addEventListener('click', ()=>{
+  // simple redirect back to index.html
+  window.location.href = 'index.html';
+});
+
+/* Global quick add (opens siswa modal) */
+document.getElementById('btnAddQuick').addEventListener('click', ()=> {
+  const ms = new bootstrap.Modal(document.getElementById('modalSiswa'));
+  document.getElementById('siswaIndex').value = '';
+  document.getElementById('siswaNIS').value = '';
+  document.getElementById('siswaNama').value = '';
+  document.getElementById('siswaJurusan').value = 'TKJ';
+  document.getElementById('siswaKelas').value = '';
+  document.getElementById('siswaNote').value = '';
+  ms.show();
+});
+
+/* ============================
+   Render / Manage Siswa
+   ============================ */
+function renderSiswa(filter = ''){
+  const table = document.querySelector('#tableSiswa tbody');
+  const data = read(keys.siswa) || [];
+  let rows = data.map((s, i) => ({...s, __idx:i}));
+  if(filter){
+    const q = filter.toLowerCase();
+    rows = rows.filter(r => `${r.nama} ${r.nis} ${r.jurusan} ${r.kelas}`.toLowerCase().includes(q));
+  }
+  if(rows.length===0){
+    table.innerHTML = '<tr><td colspan="6" class="text-muted small">Belum ada data siswa</td></tr>';
+    return;
+  }
+  table.innerHTML = rows.map((s, idx) => `
+    <tr>
+      <td>${idx+1}</td>
+      <td>${s.nis}</td>
+      <td>${s.nama}</td>
+      <td>${s.jurusan}</td>
+      <td>${s.kelas || '-'}</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="editSiswa(${s.__idx})"><i class="bi bi-pencil-fill"></i></button>
+        <button class="btn btn-sm btn-danger" onclick="deleteSiswa(${s.__idx})"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>
+  `).join('');
+  document.getElementById('statTotalSiswa').textContent = data.length;
+}
+
+/* Add / Edit form handler */
+document.getElementById('formSiswa').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const idx = document.getElementById('siswaIndex').value;
+  const nis = document.getElementById('siswaNIS').value.trim();
+  const nama = document.getElementById('siswaNama').value.trim();
+  const jurusan = document.getElementById('siswaJurusan').value;
+  const kelas = document.getElementById('siswaKelas').value.trim();
+  const note = document.getElementById('siswaNote').value.trim();
+
+  let arr = read(keys.siswa);
+  if(idx===''){
+    // create
+    arr.push({nis,nama,jurusan,kelas,note});
+    showToast('Siswa ditambahkan');
+  } else {
+    arr[idx] = {nis,nama,jurusan,kelas,note};
+    showToast('Data siswa diperbarui');
+  }
+  write(keys.siswa, arr);
+  bootstrap.Modal.getInstance(document.getElementById('modalSiswa')).hide();
+  renderSiswa();
+  refreshCharts();
+});
+
+/* edit / delete functions accessible globally */
+window.editSiswa = function(i){
+  const arr = read(keys.siswa);
+  if(!arr[i]) return;
+  const s = arr[i];
+  document.getElementById('siswaIndex').value = i;
+  document.getElementById('siswaNIS').value = s.nis || '';
+  document.getElementById('siswaNama').value = s.nama || '';
+  document.getElementById('siswaJurusan').value = s.jurusan || 'TKJ';
+  document.getElementById('siswaKelas').value = s.kelas || '';
+  document.getElementById('siswaNote').value = s.note || '';
+  new bootstrap.Modal(document.getElementById('modalSiswa')).show();
+};
+
+window.deleteSiswa = function(i){
+  if(!confirm('Hapus data siswa ini?')) return;
+  const arr = read(keys.siswa);
+  arr.splice(i,1);
+  write(keys.siswa, arr);
+  showToast('Data siswa dihapus');
+  renderSiswa();
+  refreshCharts();
+};
+
+/* search siswa and export */
+document.getElementById('searchSiswa').addEventListener('input', (e)=> renderSiswa(e.target.value));
+document.getElementById('exportSiswaBtn').addEventListener('click', ()=> {
+  const arr = read(keys.siswa);
+  if(arr.length===0){ showToast('Tidak ada data untuk diexport'); return; }
+  let csv = 'NIS,Nama,Jurusan,Kelas,Note\n';
+  arr.forEach(r => csv += `"${r.nis}","${r.nama}","${r.jurusan}","${r.kelas||''}","${(r.note||'').replace(/"/g,'""')}"\n`);
+  const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='siswa_komputama.csv'; a.click(); URL.revokeObjectURL(url);
+});
+
+/* ============================
+   Render / Manage Guru
+   ============================ */
+function renderGuru(){
+  const table = document.querySelector('#tableGuru tbody');
+  const data = read(keys.guru) || [];
+  if(data.length===0){
+    table.innerHTML = '<tr><td colspan="6" class="text-muted small">Belum ada data guru</td></tr>';
+    document.getElementById('statTotalGuru').textContent = 0;
+    return;
+  }
+  table.innerHTML = data.map((g, idx) => `
+    <tr>
+      <td>${idx+1}</td>
+      <td>${g.nip || ''}</td>
+      <td>${g.nama}</td>
+      <td>${g.mapel || '-'}</td>
+      <td>${g.email || ''}</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="editGuru(${idx})"><i class="bi bi-pencil-fill"></i></button>
+        <button class="btn btn-sm btn-danger" onclick="deleteGuru(${idx})"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>
+  `).join('');
+  document.getElementById('statTotalGuru').textContent = data.length;
+}
+
+document.getElementById('formGuru').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const idx = document.getElementById('guruIndex').value;
+  const nip = document.getElementById('guruNIP').value.trim();
+  const nama = document.getElementById('guruNama').value.trim();
+  const mapel = document.getElementById('guruMapel').value.trim();
+  const email = document.getElementById('guruEmail').value.trim();
+  let arr = read(keys.guru);
+  if(idx===''){ arr.push({nip,nama,mapel,email}); showToast('Guru ditambahkan'); }
+  else { arr[idx] = {nip,nama,mapel,email}; showToast('Data guru diperbarui'); }
+  write(keys.guru, arr);
+  bootstrap.Modal.getInstance(document.getElementById('modalGuru')).hide();
+  renderGuru();
+});
+
+/* edit / delete guru */
+window.editGuru = function(i){
+  const arr = read(keys.guru); const g = arr[i];
+  document.getElementById('guruIndex').value = i;
+  document.getElementById('guruNIP').value = g.nip || '';
+  document.getElementById('guruNama').value = g.nama || '';
+  document.getElementById('guruMapel').value = g.mapel || '';
+  document.getElementById('guruEmail').value = g.email || '';
+  new bootstrap.Modal(document.getElementById('modalGuru')).show();
+};
+window.deleteGuru = function(i){
+  if(!confirm('Hapus data guru ini?')) return;
+  const arr = read(keys.guru);
+  arr.splice(i,1); write(keys.guru, arr); showToast('Data guru dihapus'); renderGuru();
+};
+
+/* ============================
+   Pengumuman
+   ============================ */
+function renderPengumuman(){
+  const list = document.getElementById('listPengumuman');
+  const arr = read(keys.pengumuman) || [];
+  if(arr.length===0){ list.innerHTML = '<li class="list-group-item small text-muted">Belum ada pengumuman</li>'; document.getElementById('statPengumuman').textContent = 0; return; }
+  list.innerHTML = arr.map((p,i)=>`
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+      <div><b>${p.judul}</b><div class="small text-muted">${p.isi}</div></div>
+      <div class="text-end">
+        <button class="btn btn-sm btn-danger" onclick="deletePengumuman(${i})"><i class="bi bi-x-circle"></i></button>
+      </div>
+    </li>
+  `).join('');
+  document.getElementById('statPengumuman').textContent = arr.length;
+}
+
+document.getElementById('formPengumuman').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const judul = document.getElementById('pengumumanJudul').value.trim();
+  const isi = document.getElementById('pengumumanIsi').value.trim();
+  if(!judul||!isi) return;
+  const arr = read(keys.pengumuman); arr.unshift({judul, isi, date: new Date().toISOString()});
+  write(keys.pengumuman, arr);
+  showToast('Pengumuman ditambahkan');
+  bootstrap.Modal.getInstance(document.getElementById('modalPengumuman')).hide();
+  renderPengumuman();
+  refreshCharts();
+});
+window.deletePengumuman = function(i){
+  if(!confirm('Hapus pengumuman ini?')) return;
+  const arr = read(keys.pengumuman); arr.splice(i,1); write(keys.pengumuman, arr); showToast('Pengumuman dihapus'); renderPengumuman();
+};
+
+/* ============================
+   Buku Tamu
+   ============================ */
+function renderBukuTamu(){
+  const list = document.getElementById('listBukuTamu');
+  const arr = read(keys.bukutamu) || [];
+  if(arr.length===0) { list.innerHTML = '<li class="list-group-item small text-muted">Belum ada pesan</li>'; document.getElementById('statBukuTamu').textContent = 0; return; }
+  list.innerHTML = arr.map((m,i)=>`
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between"><div><b>${m.name}</b> <span class="small text-muted">(${m.time})</span></div>
+        <div>
+          <button class="btn btn-sm btn-primary" onclick="replyBukuTamu(${i})"><i class="bi bi-reply-fill"></i></button>
+          <button class="btn btn-sm btn-danger" onclick="deleteBukuTamu(${i})"><i class="bi bi-trash"></i></button>
+        </div>
+      </div>
+      <div class="small text-muted mt-1">${m.text}</div>
+      ${m.reply? `<div class="mt-2 badge bg-warning text-dark">Balasan: ${m.reply}</div>` : ''}
+    </li>
+  `).join('');
+  document.getElementById('statBukuTamu').textContent = arr.length;
+}
+
+window.deleteBukuTamu = function(i){
+  if(!confirm('Hapus pesan ini?')) return;
+  const arr = read(keys.bukutamu); arr.splice(i,1); write(keys.bukutamu,arr); showToast('Pesan dihapus'); renderBukuTamu();
+};
+window.replyBukuTamu = function(i){
+  const arr = read(keys.bukutamu);
+  const reply = prompt('Balas pesan:', arr[i].reply || '');
+  if(reply !== null){ arr[i].reply = reply; write(keys.bukutamu,arr); showToast('Balasan dikirim'); renderBukuTamu(); }
+};
+
+/* ============================
+   PPDB
+   ============================ */
+function renderPpdb(){
+  const tb = document.querySelector('#tablePpdb tbody');
+  const arr = read(keys.ppdb) || [];
+  if(arr.length===0){ tb.innerHTML = '<tr><td colspan="5" class="small text-muted">Belum ada pendaftar</td></tr>'; return; }
+  tb.innerHTML = arr.map((p, idx)=>`
+    <tr>
+      <td>${idx+1}</td>
+      <td>${p.id}</td>
+      <td>${p.nama}</td>
+      <td>${p.jurusan}</td>
+      <td>
+        <button class="btn btn-sm btn-success" onclick="approvePpdb(${idx})">Setujui</button>
+        <button class="btn btn-sm btn-danger" onclick="deletePpdb(${idx})">Tolak</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('formPpdb').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const id = document.getElementById('ppdbId').value.trim();
+  const nama = document.getElementById('ppdbNama').value.trim();
+  const jurusan = document.getElementById('ppdbJurusan').value;
+  const arr = read(keys.ppdb);
+  arr.push({id,nama,jurusan});
+  write(keys.ppdb, arr);
+  showToast('Pendaftar ditambahkan');
+  bootstrap.Modal.getInstance(document.getElementById('modalPpdb')).hide();
+  renderPpdb(); refreshCharts();
+});
+window.approvePpdb = function(i){
+  alert('Pendaftar disetujui ✅');
+  deletePpdb(i);
+};
+window.deletePpdb = function(i){
+  if(!confirm('Hapus pendaftar ini?')) return;
+  const arr = read(keys.ppdb); arr.splice(i,1); write(keys.ppdb,arr); showToast('Pendaftar dihapus'); renderPpdb(); refreshCharts();
+};
+document.getElementById('exportPpdbBtn').addEventListener('click', ()=>{
+  const arr = read(keys.ppdb) || [];
+  if(arr.length===0){ showToast('Belum ada data ppdb'); return; }
+  let csv = 'ID,Nama,Jurusan\n';
+  arr.forEach(r=> csv += `"${r.id}","${r.nama}","${r.jurusan}"\n`);
+  const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='ppdb_komputama.csv'; a.click(); URL.revokeObjectURL(url);
+});
+
+/* ============================
+   Statistik / Charts
+   ============================ */
+let chartJurusan = null, chartLaporan = null;
+function refreshCharts(){
+  // Jurusan chart
+  const ppdbList = read(keys.ppdb) || [];
+  const siswaList = read(keys.siswa) || [];
+  const counts = {TKJ:0, TKR:0, Akuntansi:0, Perbankan:0};
+  // count from siswa for current composition
+  siswaList.forEach(s=>{
+    const j = (s.jurusan||'').replace(/\s+/g,'');
+    if(j.includes('TKJ')) counts.TKJ++;
+    else if(j.includes('TKR')) counts.TKR++;
+    else if(j.toLowerCase().includes('akun')) counts.Akuntansi++;
+    else if(j.toLowerCase().includes('perbank')) counts.Perbankan++;
+  });
+  // also add ppdb numbers as another dataset optionally (we'll show ppdb counts)
+  const ppdbCounts = {TKJ:0,TKR:0,Akuntansi:0,Perbankan:0};
+  ppdbList.forEach(p=>{
+    const j = p.jurusan || '';
+    if(j.includes('TKJ')) ppdbCounts.TKJ++;
+    else if(j.includes('TKR')) ppdbCounts.TKR++;
+    else if(j.toLowerCase().includes('akun')) ppdbCounts.Akuntansi++;
+    else if(j.toLowerCase().includes('perbank')) ppdbCounts.Perbankan++;
+  });
+
+  const ctx = document.getElementById('chartJurusan');
+  const labels = ['TKJ','TKR','Akuntansi','Perbankan'];
+  const dataSet = labels.map(l=> counts[l]);
+  const ppdbSet = labels.map(l=> ppdbCounts[l]);
+
+  if(chartJurusan) chartJurusan.destroy();
+  chartJurusan = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Siswa (aktif)', data: dataSet, backgroundColor: ['#0d6efd','#198754','#ffc107','#dc3545'] },
+        { label: 'Pendaftar (PPDB)', data: ppdbSet, backgroundColor: ['rgba(13,110,253,0.25)','rgba(25,135,84,0.25)','rgba(255,193,7,0.25)','rgba(220,53,69,0.25)'] }
+      ]
+    },
+    options: { responsive:true, plugins:{ legend:{ position:'bottom' } } }
+  });
+
+  // laporan chart
+  const ctx2 = document.getElementById('chartLaporan');
+  if(chartLaporan) chartLaporan.destroy();
+  chartLaporan = new Chart(ctx2, {
+    type:'doughnut',
+    data: { labels: ['Siswa','Guru','Pengumuman','Buku Tamu'], datasets:[{ data: [read(keys.siswa).length, read(keys.guru).length, read(keys.pengumuman).length, read(keys.bukutamu).length], backgroundColor:['#0d6efd','#ffc107','#20c997','#6c757d'] }] },
+    options:{ plugins:{ legend:{ position:'bottom' } } }
+  });
+
+  // update stat numbers
+  document.getElementById('statTotalSiswa').textContent = read(keys.siswa).length;
+  document.getElementById('statTotalGuru').textContent = read(keys.guru).length;
+  document.getElementById('statPengumuman').textContent = read(keys.pengumuman).length;
+  document.getElementById('statBukuTamu').textContent = read(keys.bukutamu).length;
+}
+
+/* ============================
+   Laporan (text)
+   ============================ */
+function renderReport(){
+  const siswa = read(keys.siswa);
+  const guru = read(keys.guru);
+  const pengumuman = read(keys.pengumuman);
+  const ppdb = read(keys.ppdb);
+  const bukutamu = read(keys.bukutamu);
+  const text = [
+    `LAPORAN RINGKAS SMK KOMPUTAMA - ${new Date().toLocaleString()}`,
+    `-----------------------------------------------`,
+    `Total siswa: ${siswa.length}`,
+    `Total guru: ${guru.length}`,
+    `Pengumuman aktif: ${pengumuman.length}`,
+    `Pendaftar PPDB: ${ppdb.length}`,
+    `Pesan buku tamu: ${bukutamu.length}`,
+    ``,
+    `-- 5 siswa terbaru --`,
+    ...siswa.slice(-5).reverse().map(s => `• ${s.nis} - ${s.nama} (${s.jurusan})`),
+    ``,
+    `-- 5 pendaftar PPDB terbaru --`,
+    ...ppdb.slice(-5).reverse().map(p => `• ${p.id} - ${p.nama} (${p.jurusan})`),
+  ].join('\n');
+  document.getElementById('reportArea').textContent = text;
+}
+
+document.getElementById('copyReportBtn').addEventListener('click', ()=>{
+  navigator.clipboard.writeText(document.getElementById('reportArea').textContent).then(()=> showToast('Laporan disalin ke clipboard'));
+});
+document.getElementById('downloadReportBtn').addEventListener('click', ()=>{
+  const text = document.getElementById('reportArea').textContent;
+  const blob = new Blob([text], {type:'text/plain'}); const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='laporan_komputama.txt'; a.click(); URL.revokeObjectURL(url);
+});
+
+/* ============================
+   Recent Render + Init
+   ============================ */
+function initAll(){
+  renderSiswa();
+  renderGuru();
+  renderPengumuman();
+  renderBukuTamu();
+  renderPpdb();
+  renderRecentActivity();
+  refreshCharts();
+  renderReport();
+}
+initAll();
+
+/* global search (search across siswa/guru/pengumuman) */
+document.getElementById('globalSearch').addEventListener('input', (e)=>{
+  const q = e.target.value.trim();
+  // if query present, jump to siswa tab and filter
+  if(q.length>0){
+    document.querySelectorAll('.sidebar .nav-link').forEach(n=>n.classList.remove('active'));
+    document.querySelector('.sidebar .nav-link[data-section="siswa"]').classList.add('active');
+    Object.keys(sections).forEach(k => sections[k].style.display = (k==='siswa')?'' : 'none');
+    renderSiswa(q);
+  } else {
+    // clear and show home
+    document.querySelectorAll('.sidebar .nav-link').forEach(n=>n.classList.remove('active'));
+    document.querySelector('.sidebar .nav-link[data-section="home"]').classList.add('active');
+    Object.keys(sections).forEach(k => sections[k].style.display = (k==='home')?'' : 'none');
+    renderSiswa();
+  }
+});
+
+/* search across siswa via top search input */
+document.getElementById('globalSearch').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter') e.preventDefault();
+});
+
+/* quick listeners: when sections shown, ensure render updated */
+document.querySelectorAll('.sidebar .nav-link[data-section]').forEach(n=>{
+  n.addEventListener('click', ()=>{
+    const sec = n.dataset.section;
+    if(sec === 'siswa') renderSiswa();
+    if(sec === 'guru') renderGuru();
+    if(sec === 'pengumuman') renderPengumuman();
+    if(sec === 'bukutamu') renderBukuTamu();
+    if(sec === 'ppdb') renderPpdb();
+    if(sec === 'laporan') renderReport();
+  });
+});
+
+/* init searchSiswa empty -> show base list */
+renderSiswa();
+
+/* example: expose some functions for console/test */
+window._komputama = {
+  read, write, keys
+};
+
+</script>
+
+</body>
+</html>

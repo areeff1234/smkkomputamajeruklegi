@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Portal Guru - SMK Komputama (Enhanced)</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--brand:#ffc107;--dark:#0b2a4a;--bg:#f4f6f9;--primary:#0d6efd}
+html,body{height:100%;}
+body{background:var(--bg);font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;margin:0}
+.app{display:flex;min-height:100vh}
+.sidebar{width:250px;background:linear-gradient(180deg,var(--dark), #0b3d6a);color:#fff;padding:18px 12px;position:fixed;top:0;left:0;bottom:0;overflow:auto}
+.sidebar h4{font-weight:700}
+.sidebar .nav-link{color:rgba(255,255,255,0.95);margin:6px 0;border-radius:8px;padding:10px 12px;display:flex;align-items:center}
+.sidebar .nav-link .bi{font-size:1.05rem;margin-right:10px}
+.sidebar .nav-link.active,.sidebar .nav-link:hover{background:rgba(255,255,255,0.06);transform:translateX(4px)}
+.main{margin-left:250px;padding:22px;flex:1}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px}
+.card{border-radius:12px}
+.table-xs td,.table-xs th{padding:0.45rem 0.5rem;font-size:0.92rem}
+.toast-container{position:fixed;top:18px;right:18px;z-index:1200}
+.search-input{max-width:320px}
+@media(max-width:900px){.sidebar{position:relative;width:100%;height:auto;display:flex;gap:8px;overflow-x:auto;padding:10px}.main{margin-left:0;padding:12px}}
+.profile-pic{width:42px;height:42px;border-radius:50%;object-fit:cover}
+.small-muted{color:#6c757d}
+.hidden{display:none!important}
+.badge-small{font-size:0.78rem;padding:0.25em 0.5em;border-radius:6px}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="d-flex align-items-center mb-3">
+      <img src="LOGO.png" alt="logo" width="42" height="42" class="rounded-circle me-2" onerror="this.style.display='none'">
+      <div>
+        <h4 class="mb-0">SMK KOMPUTAMA</h4>
+        <small class="text-white-50">Portal Guru</small>
+      </div>
+    </div>
+
+    <nav class="nav flex-column">
+      <a href="#" class="nav-link active" data-section="home"><i class="bi bi-speedometer2"></i>Dashboard</a>
+      <a href="#" class="nav-link" data-section="absensi"><i class="bi bi-check2-square"></i>Absensi</a>
+      <a href="#" class="nav-link" data-section="nilai"><i class="bi bi-journal-text"></i>Nilai</a>
+      <a href="#" class="nav-link" data-section="tugas"><i class="bi bi-file-earmark-text"></i>Tugas</a>
+      <a href="#" class="nav-link" data-section="materi"><i class="bi bi-folder2-open"></i>Materi</a>
+      <a href="#" class="nav-link" data-section="pengumuman"><i class="bi bi-megaphone-fill"></i>Pengumuman</a>
+      <a href="#" class="nav-link" data-section="chat"><i class="bi bi-chat-dots"></i>Chat</a>
+      <a href="#" class="nav-link" data-section="laporan"><i class="bi bi-bar-chart-fill"></i>Statistik & Laporan</a>
+      <hr class="text-white-10">
+      <button id="logoutBtn" class="btn btn-sm btn-outline-light mt-2"><i class="bi bi-box-arrow-right"></i> Logout</button>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <!-- LOGIN CARD (centered) -->
+    <div id="loginCard" class="card p-4 mx-auto" style="max-width:520px">
+      <h4>Login Guru</h4>
+      <p class="small text-muted">Masuk dengan akun guru. Demo: <b>guru / 54321</b></p>
+      <div class="row g-2">
+        <div class="col-6"><input id="loginUsername" class="form-control" placeholder="Username"></div>
+        <div class="col-6"><input id="loginPassword" type="password" class="form-control" placeholder="Password"></div>
+      </div>
+      <div class="mt-2 d-flex gap-2">
+        <button id="btnLogin" class="btn btn-primary">Masuk</button>
+        <button id="btnDemo" class="btn btn-outline-secondary">Demo</button>
+      </div>
+    </div>
+
+    <!-- Dashboard area -->
+    <div id="dashboardArea" class="hidden">
+      <div class="topbar">
+        <div>
+          <h3 id="pageTitle">Dashboard</h3>
+          <small id="pageSub" class="small-muted">Kelola absensi, nilai, tugas, dan materi</small>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <input id="globalSearch" class="form-control form-control-sm search-input" placeholder="Cari siswa / tugas / pengumuman...">
+          <div class="d-flex align-items-center gap-2">
+            <button id="btnNewNotif" class="btn btn-sm btn-outline-secondary"><i class="bi bi-bell"></i></button>
+            <img id="userPic" src="" class="profile-pic" style="display:none">
+            <strong id="userName">Guru</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sections -->
+      <section id="home" class="section">
+        <div class="row g-3">
+          <div class="col-md-3"><div class="card p-3 shadow-sm"><h6>Total Siswa</h6><h3 id="statTotalSiswa">0</h3></div></div>
+          <div class="col-md-3"><div class="card p-3 shadow-sm"><h6>Rata-rata Nilai</h6><h3 id="statAvg">-</h3></div></div>
+          <div class="col-md-3"><div class="card p-3 shadow-sm"><h6>Tugas Aktif</h6><h3 id="statTasks">0</h3></div></div>
+          <div class="col-md-3"><div class="card p-3 shadow-sm"><h6>Pengumuman</h6><h3 id="statPeng">0</h3></div></div>
+        </div>
+
+        <div class="row mt-3 g-3">
+          <div class="col-md-8"><div class="card p-3 shadow-sm"><h6>Aktivitas Terbaru</h6><ul id="activityList" class="list-group list-group-flush small"></ul></div></div>
+          <div class="col-md-4"><div class="card p-3 shadow-sm"><h6>Quick Actions</h6><button id="quickAbsensi" class="btn btn-warning w-100 mb-2">Buka Absensi</button><button id="quickTugas" class="btn btn-primary w-100">Buat Tugas</button></div></div>
+        </div>
+      </section>
+
+      <section id="absensi" class="section hidden">
+        <div class="card shadow-sm p-3 mb-3">
+          <div class="d-flex justify-content-between"><h5>Absensi</h5><div><button id="exportAbs" class="btn btn-sm btn-outline-primary">Export CSV</button></div></div>
+          <div class="table-responsive"><table class="table table-striped table-xs" id="tableAbsensi"><thead><tr><th>#</th><th>Nama</th><th>Kelas</th><th>Hadir</th><th>Sakit</th><th>Izin</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card p-3 shadow-sm"><h6>Grafik Kehadiran</h6><canvas id="chartGuruAttend" height="100"></canvas></div>
+      </section>
+
+      <section id="nilai" class="section hidden">
+        <div class="card shadow-sm p-3 mb-3">
+          <div class="d-flex justify-content-between"><h5>Nilai</h5><div><button id="exportNilai" class="btn btn-sm btn-success">Export CSV</button></div></div>
+          <div class="table-responsive"><table class="table table-striped table-xs" id="tableNilai"><thead><tr><th>#</th><th>Nama</th><th>Kelas</th><th>Mapel</th><th>Nilai</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card p-3 shadow-sm"><h6>Distribusi Nilai</h6><canvas id="chartGuruNilai" height="120"></canvas></div>
+      </section>
+
+      <section id="tugas" class="section hidden">
+        <div class="card shadow-sm p-3 mb-3">
+          <div class="d-flex justify-content-between"><h5>Tugas</h5><div><button id="btnAddTugas" class="btn btn-sm btn-warning">Buat Tugas</button></div></div>
+          <div id="listTugas" class="list-group mt-2"></div>
+        </div>
+        <div class="card p-3 shadow-sm"><h6>Riwayat Tugas</h6><ul id="taskHistory" class="small"></ul></div>
+      </section>
+
+      <section id="materi" class="section hidden">
+        <div class="card shadow-sm p-3 mb-3"><div class="d-flex justify-content-between"><h5>Materi & File</h5><input id="materiUpload" type="file" class="form-control form-control-sm" /></div>
+          <div id="materiList" class="mt-2"></div>
+        </div>
+      </section>
+
+      <section id="pengumuman" class="section hidden">
+        <div class="card shadow-sm p-3 mb-3"><div class="d-flex justify-content-between"><h5>Pengumuman</h5><div><button id="btnClearPeng" class="btn btn-sm btn-outline-danger">Hapus Semua</button></div></div>
+          <div id="pengList" class="mt-2"></div>
+          <div class="mt-2 d-flex gap-2"><input id="newPengTitle" class="form-control form-control-sm" placeholder="Judul"><input id="newPengIsi" class="form-control form-control-sm" placeholder="Isi"><button id="addPeng" class="btn btn-success">Tambah</button></div>
+        </div>
+      </section>
+
+      <section id="chat" class="section hidden">
+        <div class="card shadow-sm p-3"><h5>Chat</h5><div id="chatWindow" style="height:300px;overflow:auto;background:#fff;padding:8px;border-radius:8px"></div>
+        <div class="input-group mt-2"><input id="chatInput" class="form-control" placeholder="Tulis pesan..."><button id="chatSend" class="btn btn-primary">Kirim</button></div></div>
+      </section>
+
+      <section id="laporan" class="section hidden">
+        <div class="card shadow-sm p-3"><h5>Statistik & Laporan</h5>
+          <pre id="reportArea" style="white-space:pre-wrap;background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #eee;"></pre>
+          <div class="d-flex gap-2 mt-2"><button id="copyReportBtn" class="btn btn-sm btn-primary">Salin Laporan</button><button id="downloadReportBtn" class="btn btn-sm btn-outline-primary">Download .txt</button></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <div id="toastMsg" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex"><div class="toast-body"></div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>
+  </div>
+</div>
+
+<!-- Modals (create tugas) -->
+<div class="modal fade" id="modalTugas" tabindex="-1"><div class="modal-dialog modal-lg"><form id="formTugas" class="modal-content"><div class="modal-header"><h5 class="modal-title">Buat / Edit Tugas</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input id="tugasId" type="hidden"><div class="mb-2"><label class="form-label small">Judul</label><input id="tugasJudul" class="form-control"></div><div class="mb-2"><label class="form-label small">Deskripsi</label><textarea id="tugasDesc" class="form-control" rows="3"></textarea></div><div class="row"><div class="col-md-6"><label class="form-label small">Mapel</label><input id="tugasMapel" class="form-control"></div><div class="col-md-6"><label class="form-label small">Tenggat</label><input id="tugasDue" type="date" class="form-control"></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-success" type="submit">Simpan</button></div></form></div></div>
+
+<script>
+/* ===== Keys & helpers (shared with admin & siswa) ===== */
+const KEYS = {
+  siswa: 'komputama_siswa_v1',
+  guru: 'komputama_guru_v1',
+  pengumuman: 'komputama_pengumuman_v1',
+  bukutamu: 'komputama_bukutamu_v1',
+  ppdb: 'komputama_ppdb_v1',
+  tugas: 'komputama_tugas_v1',
+  nilai: 'komputama_nilai_v1',
+  materi: 'komputama_materi_v1',
+  chat: 'komputama_chat_v1',
+  activity: 'komputama_activity_v1'
+};
+function read(k){ try{ return JSON.parse(localStorage.getItem(k))||[] }catch(e){return []} }
+function write(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+function toast(msg){ const el=document.getElementById('toastMsg'); el.querySelector('.toast-body').textContent=msg; new bootstrap.Toast(el).show(); pushAct(msg); }
+function pushAct(text){ const act = read(KEYS.activity); act.unshift({time:new Date().toLocaleString('id-ID'), text}); write(KEYS.activity, act.slice(0,200)); }
+
+/* ===== Seed defaults (if empty) ===== */
+if(!localStorage.getItem(KEYS.siswa)){
+  const seed = [
+    {id:'s1',nama:'Ahmad Rifai',kelas:'X TKJ 1'},
+    {id:'s2',nama:'Siti Aisyah',kelas:'X Akuntansi 1'},
+    {id:'s3',nama:'Budi Santoso',kelas:'X TKR 1'}
+  ]; write(KEYS.siswa, seed);
+}
+if(!localStorage.getItem(KEYS.guru)) write(KEYS.guru, [{id:'g1',username:'guru',password:'54321',nama:'Guru Demo',mapel:'Matematika',email:'guru@smk.com'}]);
+if(!localStorage.getItem(KEYS.pengumuman)) write(KEYS.pengumuman, [{id:'p1',judul:'PPDB Dibuka',isi:'Pendaftaran dibuka mulai 1 Mei 2025.'}]);
+if(!localStorage.getItem(KEYS.tugas)) write(KEYS.tugas, [{id:'t1',judul:'Tugas 1',deskripsi:'Kerjakan soal',due:new Date(Date.now()+3*86400000).toISOString(),mapel:'Matematika',createdBy:'g1'}]);
+if(!localStorage.getItem(KEYS.nilai)) write(KEYS.nilai, []);
+if(!localStorage.getItem(KEYS.materi)) write(KEYS.materi, []);
+if(!localStorage.getItem(KEYS.chat)) write(KEYS.chat, [{from:'s1',to:'g1',text:'Assalamualaikum Pak',time:new Date().toLocaleString()}]);
+
+/* ===== Auth for guru portal (login kept) ===== */
+function currentGuru(){ return JSON.parse(sessionStorage.getItem('loggedGuru')||'null'); }
+function setCurrentGuru(g){ sessionStorage.setItem('loggedGuru', JSON.stringify(g)); }
+function logout(){ sessionStorage.removeItem('loggedGuru'); location.reload(); }
+
+document.getElementById('btnLogin').addEventListener('click', ()=>{
+  const u=document.getElementById('loginUsername').value.trim(); const p=document.getElementById('loginPassword').value.trim();
+  const users=read(KEYS.guru)||[]; const found = users.find(x=> (x.username===u || x.id===u) && x.password===p);
+  if(found){ setCurrentGuru(found); initApp(); toast('Login berhasil — '+found.nama); } else alert('Username / password salah');
+});
+
+document.getElementById('btnDemo').addEventListener('click', ()=>{ const u=read(KEYS.guru)[0]; setCurrentGuru(u); initApp(); toast('Masuk demo: '+u.nama); });
+
+document.getElementById('logoutBtn').addEventListener('click', ()=> logout());
+
+/* ===== Init & Navigation ===== */
+function initApp(){ document.getElementById('loginCard').classList.add('hidden'); document.getElementById('dashboardArea').classList.remove('hidden'); renderAll(); }
+if(currentGuru()) initApp();
+
+document.querySelectorAll('.sidebar .nav-link').forEach(link=> link.addEventListener('click',(e)=>{ e.preventDefault(); document.querySelectorAll('.sidebar .nav-link').forEach(n=>n.classList.remove('active')); link.classList.add('active'); const sec=link.dataset.section; document.querySelectorAll('.section').forEach(s=> s.classList.add('hidden')); document.getElementById(sec).classList.remove('hidden'); document.getElementById('pageTitle').textContent = link.textContent.trim(); }));
+
+document.getElementById('quickAbsensi').addEventListener('click', ()=> document.querySelector('.sidebar .nav-link[data-section="absensi"]').click());
+document.getElementById('quickTugas').addEventListener('click', ()=> document.querySelector('.sidebar .nav-link[data-section="tugas"]').click());
+
+/* ===== Render functions ===== */
+function renderAll(){ renderHome(); renderAbsensi(); renderNilai(); renderTugas(); renderMateri(); renderPengumuman(); renderChat(); renderReport(); }
+
+function renderHome(){ const siswa=read(KEYS.siswa); const tugas=read(KEYS.tugas); const peng=read(KEYS.pengumuman); const nilai=read(KEYS.nilai); document.getElementById('statTotalSiswa').textContent = siswa.length; document.getElementById('statTasks').textContent = tugas.length; document.getElementById('statPeng').textContent = peng.length; const avg = nilai.length? Math.round((nilai.reduce((a,b)=>a+b.nilai,0)/nilai.length)*10)/10 : '-'; document.getElementById('statAvg').textContent = avg; const act = read(KEYS.activity); document.getElementById('activityList').innerHTML = (act.slice(0,8).map(a=>`<li class="list-group-item small">${a.time} — ${a.text}</li>`).join('')) || '<li class="text-muted">Belum ada aktivitas</li>'; }
+
+/* Absensi */
+function renderAbsensi(){ const siswa=read(KEYS.siswa); const att = JSON.parse(localStorage.getItem(KEYS.siswa+'_att')||'{}'); const tbody = document.querySelector('#tableAbsensi tbody'); tbody.innerHTML=''; siswa.forEach((s,i)=>{ const st = att[s.id]||{hadir:false,sakit:false,izin:false}; tbody.innerHTML += `<tr><td>${i+1}</td><td>${s.nama}</td><td>${s.kelas||'-'}</td><td><input type="checkbox" ${st.hadir?'checked':''} onchange="setAttend('${s.id}','hadir',this.checked)"></td><td><input type="checkbox" ${st.sakit?'checked':''} onchange="setAttend('${s.id}','sakit',this.checked)"></td><td><input type="checkbox" ${st.izin?'checked':''} onchange="setAttend('${s.id}','izin',this.checked)"></td></tr>`; }); renderAttendChart(); }
+function setAttend(id,type,val){ const key = KEYS.siswa+'_att'; const att = JSON.parse(localStorage.getItem(key)||'{}'); if(!att[id]) att[id]={hadir:false,sakit:false,izin:false}; att[id].hadir = (type==='hadir')?val:att[id].hadir; att[id].sakit = (type==='sakit')?val:att[id].sakit; att[id].izin = (type==='izin')?val:att[id].izin; // ensure only one true
+ if(att[id].hadir){ att[id].sakit=false; att[id].izin=false; } if(att[id].sakit){ att[id].hadir=false; att[id].izin=false; } if(att[id].izin){ att[id].hadir=false; att[id].sakit=false; }
+ localStorage.setItem(key, JSON.stringify(att)); toast('Absensi diperbarui'); renderAbsensi(); }
+function renderAttendChart(){ const att = JSON.parse(localStorage.getItem(KEYS.siswa+'_att')||'{}'); const siswa=read(KEYS.siswa); let hadir=0, sakit=0, izin=0, belum=0; siswa.forEach(s=>{ const st = att[s.id]; if(!st) { belum++; } else if(st.hadir) hadir++; else if(st.sakit) sakit++; else if(st.izin) izin++; else belum++; }); const ctx = document.getElementById('chartGuruAttend').getContext('2d'); if(window._chartAttend) window._chartAttend.destroy(); window._chartAttend = new Chart(ctx,{type:'doughnut',data:{labels:['Hadir','Sakit','Izin','Belum'],datasets:[{data:[hadir,sakit,izin,belum]}]},options:{plugins:{legend:{position:'bottom'}}}}); }
+
+/* Nilai */
+function renderNilai(){ const siswa=read(KEYS.siswa); const nilai = read(KEYS.nilai)||[]; const tbody=document.querySelector('#tableNilai tbody'); tbody.innerHTML=''; siswa.forEach((s,i)=>{ const rec = nilai.filter(n=> n.siswaId===s.id); if(rec.length===0){ tbody.innerHTML += `<tr><td>${i+1}</td><td>${s.nama}</td><td>${s.kelas||'-'}</td><td>-</td><td>-</td></tr>`; } else { rec.forEach(r=> tbody.innerHTML += `<tr><td>${i+1}</td><td>${s.nama}</td><td>${s.kelas||'-'}</td><td>${r.mapel}</td><td><input type="number" value="${r.nilai}" min="0" max="100" onchange="updateNil('${s.id}','${r.mapel}',this.value)"></td></tr>`); } }); renderNilaiChart(); }
+function updateNil(sid,mapel,val){ let arr = read(KEYS.nilai); const idx = arr.findIndex(x=> x.siswaId===sid && x.mapel===mapel); if(idx>-1) arr[idx].nilai = parseInt(val); else arr.push({siswaId:sid,mapel, nilai: parseInt(val), keterangan:''}); write(KEYS.nilai,arr); toast('Nilai diperbarui'); renderAll(); }
+function renderNilaiChart(){ const nilai = read(KEYS.nilai)||[]; const mapels = [...new Set(nilai.map(n=>n.mapel))]; const sums = mapels.map(m=> Math.round((nilai.filter(n=>n.mapel===m).reduce((a,b)=>a+b.nilai,0) / Math.max(1, nilai.filter(n=>n.mapel===m).length))*10)/10 ); const ctx = document.getElementById('chartGuruNilai').getContext('2d'); if(window._chartNil) window._chartNil.destroy(); window._chartNil = new Chart(ctx,{type:'bar',data:{labels:mapels,datasets:[{label:'Rata-rata',data:sums}]},options:{plugins:{legend:{display:false}}}}); }
+
+/* Tugas */
+function renderTugas(){ const arr = read(KEYS.tugas) || []; document.getElementById('listTugas').innerHTML = arr.map(t=>`<div class="list-group-item d-flex justify-content-between align-items-start"><div><b>${t.judul}</b><div class="small text-muted">${t.deskripsi||''}</div><small class="text-muted">Mapel: ${t.mapel} • Tenggat: ${t.due?new Date(t.due).toLocaleDateString():'-'}</small></div><div><button class="btn btn-sm btn-primary me-1" onclick="editTugas('${t.id}')">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteTugas('${t.id}')">Hapus</button></div></div>`).join('') || '<div class="text-muted">Belum ada tugas</div>'; document.getElementById('statTasks').textContent = arr.length; }
+
+document.getElementById('btnAddTugas').addEventListener('click', ()=>{ document.getElementById('tugasId').value=''; document.getElementById('tugasJudul').value=''; document.getElementById('tugasDesc').value=''; document.getElementById('tugasMapel').value=''; document.getElementById('tugasDue').value=''; new bootstrap.Modal(document.getElementById('modalTugas')).show(); });
+
+document.getElementById('formTugas').addEventListener('submit',(e)=>{ e.preventDefault(); const id=document.getElementById('tugasId').value || 't'+Date.now(); const jud=document.getElementById('tugasJudul').value.trim(); const desc=document.getElementById('tugasDesc').value.trim(); const mapel=document.getElementById('tugasMapel').value.trim(); const due=document.getElementById('tugasDue').value? new Date(document.getElementById('tugasDue').value).toISOString() : ''; let arr = read(KEYS.tugas); const idx = arr.findIndex(x=> x.id===id); const obj={id,judul:jud,deskripsi:desc,mapel,due,createdBy:currentGuru()?currentGuru().id:'g1'}; if(idx>-1) arr[idx]=obj; else arr.unshift(obj); write(KEYS.tugas,arr); toast('Tugas disimpan'); renderTugas(); bootstrap.Modal.getInstance(document.getElementById('modalTugas')).hide(); });
+function editTugas(id){ const arr=read(KEYS.tugas); const t = arr.find(x=>x.id===id); if(!t) return; document.getElementById('tugasId').value=t.id; document.getElementById('tugasJudul').value=t.judul; document.getElementById('tugasDesc').value=t.deskripsi; document.getElementById('tugasMapel').value=t.mapel; document.getElementById('tugasDue').value = t.due? new Date(t.due).toISOString().slice(0,10):''; new bootstrap.Modal(document.getElementById('modalTugas')).show(); }
+function deleteTugas(id){ if(!confirm('Hapus tugas ini?')) return; let arr=read(KEYS.tugas); arr=arr.filter(x=> x.id!==id); write(KEYS.tugas,arr); toast('Tugas dihapus'); renderTugas(); }
+
+/* Materi */
+function renderMateri(){ const arr=read(KEYS.materi)||[]; document.getElementById('materiList').innerHTML = arr.map(m=>`<div class="mb-2"><b>${m.title}</b><div class="small text-muted">${m.desc||''}</div><div class="mt-1"><button class="btn btn-sm btn-outline-primary" onclick="downloadMat('${m.id}')">Download</button> <button class="btn btn-sm btn-danger" onclick="delMat('${m.id}')">Hapus</button></div></div>`).join('') || '<div class="text-muted">Belum ada materi</div>'; }
+
+document.getElementById('materiUpload').addEventListener('change', function(e){ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=function(ev){ const arr=read(KEYS.materi); const id='m'+Date.now(); arr.unshift({id,title:f.name,file:ev.target.result,desc:'Diunggah oleh guru',uploadedBy:currentGuru()?currentGuru().id:'g1',date:new Date().toISOString()}); write(KEYS.materi,arr); toast('Materi diunggah'); renderMateri(); }; r.readAsDataURL(f); });
+function downloadMat(id){ const m = (read(KEYS.materi)||[]).find(x=>x.id===id); if(!m) return; const a=document.createElement('a'); a.href=m.file; a.download=m.title; a.click(); }
+function delMat(id){ if(!confirm('Hapus materi?')) return; let arr=read(KEYS.materi); arr=arr.filter(x=> x.id!==id); write(KEYS.materi,arr); toast('Materi dihapus'); renderMateri(); }
+
+/* Pengumuman */
+function renderPengumuman(){ const arr=read(KEYS.pengumuman)||[]; document.getElementById('pengList').innerHTML = arr.map(p=>`<div class="mb-2"><b>${p.judul||p}</b><div class="small text-muted">${p.isi||''}${p}</div></div>`).join('') || '<div class="text-muted">Belum ada pengumuman</div>'; document.getElementById('statPeng').textContent = arr.length; }
+
+document.getElementById('addPeng').addEventListener('click', ()=>{ const title=document.getElementById('newPengTitle').value.trim(); const isi=document.getElementById('newPengIsi').value.trim(); if(!title && !isi) return; const arr=read(KEYS.pengumuman); arr.unshift({id:'p'+Date.now(),judul:title,isi,date:new Date().toISOString()}); write(KEYS.pengumuman,arr); document.getElementById('newPengTitle').value=''; document.getElementById('newPengIsi').value=''; toast('Pengumuman ditambahkan'); renderPengumuman(); });
+
+document.getElementById('btnClearPeng').addEventListener('click', ()=>{ if(!confirm('Hapus semua pengumuman?')) return; write(KEYS.pengumuman,[]); toast('Semua pengumuman dihapus'); renderPengumuman(); });
+
+/* Chat (shared) */
+function renderChat(){ const arr=read(KEYS.chat)||[]; const win=document.getElementById('chatWindow'); win.innerHTML = arr.map(c=>`<div class="mb-2"><b>${c.from}</b> <small class="text-muted">${c.time}</small><div>${c.text}</div></div>`).join(''); win.scrollTop = win.scrollHeight; }
+
+document.getElementById('chatSend').addEventListener('click', ()=>{ const txt=document.getElementById('chatInput').value.trim(); if(!txt) return; const me = currentGuru(); const arr = read(KEYS.chat); arr.push({from: me? me.nama: 'Guru', to: 'all', text: txt, time: new Date().toLocaleString()}); write(KEYS.chat,arr); document.getElementById('chatInput').value=''; renderChat(); toast('Pesan terkirim'); });
+
+/* Report */
+function renderReport(){ const siswa=read(KEYS.siswa); const guru=read(KEYS.guru); const tugas=read(KEYS.tugas); const peng=read(KEYS.pengumuman); const text = [`LAPORAN - SMK KOMPUTAMA - ${new Date().toLocaleString()}`,`Total siswa: ${siswa.length}`,`Total guru: ${guru.length}`,`Tugas aktif: ${tugas.length}`,`Pengumuman: ${peng.length}`].join('\n'); document.getElementById('reportArea').textContent = text; }
+
+document.getElementById('copyReportBtn').addEventListener('click', ()=>{ navigator.clipboard.writeText(document.getElementById('reportArea').textContent).then(()=> toast('Laporan disalin ke clipboard')); });
+document.getElementById('downloadReportBtn').addEventListener('click', ()=>{ const t=document.getElementById('reportArea').textContent; const b=new Blob([t],{type:'text/plain'}); const url=URL.createObjectURL(b); const a=document.createElement('a'); a.href=url; a.download='laporan.txt'; a.click(); URL.revokeObjectURL(url); toast('Download selesai'); });
+
+/* Helpers */
+function currentGuru(){ return JSON.parse(sessionStorage.getItem('loggedGuru')||'null'); }
+
+/* Export CSV helpers */
+function exportCSV(filename, rows){ const blob=new Blob([rows],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url); }
+
+document.getElementById('exportAbs').addEventListener('click', ()=>{ const att = JSON.parse(localStorage.getItem(KEYS.siswa+'_att')||'{}'); const siswa = read(KEYS.siswa); let csv='Nama,Kelas,Hadir,Sakit,Izin\n'; siswa.forEach(s=>{ const st = att[s.id]||{}; csv += `${s.nama},${s.kelas||''},${st.hadir?1:0},${st.sakit?1:0},${st.izin?1:0}\n`; }); exportCSV('absensi.csv',csv); toast('Export absensi selesai'); });
+
+document.getElementById('exportNilai').addEventListener('click', ()=>{ const nilai = read(KEYS.nilai)||[]; let csv='SiswaId,Mapel,Nilai,Keterangan\n'; nilai.forEach(n=> csv += `${n.siswaId},${n.mapel},${n.nilai},${n.keterangan||''}\n`); exportCSV('nilai.csv',csv); toast('Export nilai selesai'); });
+
+/* Polling for realtime-ish sync */
+let snapshot = JSON.stringify({p:read(KEYS.pengumuman),t:read(KEYS.tugas),n:read(KEYS.nilai),c:read(KEYS.chat)});
+setInterval(()=>{ const cur = JSON.stringify({p:read(KEYS.pengumuman),t:read(KEYS.tugas),n:read(KEYS.nilai),c:read(KEYS.chat)}); if(cur!==snapshot){ toast('Perubahan terdeteksi — data diperbarui'); renderAll(); snapshot=cur; } },3000);
+
+/* Initial render */
+renderAll();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

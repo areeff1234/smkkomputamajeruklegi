@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Portal Siswa - SMK Komputama (Super Lengkap)</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--brand:#ffc107;--dark:#0b2a4a;--bg:#f4f6f9;--primary:#0d6efd}
+html,body{height:100%;}
+body{background:var(--bg);font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;margin:0}
+.app{display:flex;min-height:100vh}
+.sidebar{width:250px;background:linear-gradient(180deg,var(--dark), #0b3d6a);color:#fff;padding:18px 12px;position:fixed;top:0;left:0;bottom:0;overflow:auto}
+.sidebar h4{font-weight:700}
+.sidebar .nav-link{color:rgba(255,255,255,0.95);margin:6px 0;border-radius:8px;padding:10px 12px;display:flex;align-items:center}
+.sidebar .nav-link .bi{font-size:1.05rem;margin-right:10px}
+.sidebar .nav-link.active,.sidebar .nav-link:hover{background:rgba(255,255,255,0.06);transform:translateX(4px)}
+.main{margin-left:250px;padding:22px;flex:1}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px}
+.card{border-radius:12px}
+.table-xs td,.table-xs th{padding:0.45rem 0.5rem;font-size:0.92rem}
+.toast-container{position:fixed;top:18px;right:18px;z-index:1200}
+.search-input{max-width:320px}
+@media(max-width:900px){.sidebar{position:relative;width:100%;height:auto;display:flex;gap:8px;overflow-x:auto;padding:10px}.main{margin-left:0;padding:12px}}
+.badge-small{font-size:0.78rem;padding:0.25em 0.5em;border-radius:6px}
+.profile-pic{width:42px;height:42px;border-radius:50%;object-fit:cover}
+.small-muted{color:#6c757d}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="d-flex align-items-center mb-3">
+      <img id="sideLogo" src="LOGO.png" alt="logo" width="42" height="42" class="rounded-circle me-2" onerror="this.style.display='none'">
+      <div>
+        <h4 class="mb-0">SMK KOMPUTAMA</h4>
+        <small class="text-white-50">Portal Siswa</small>
+      </div>
+    </div>
+
+    <nav class="nav flex-column">
+      <a href="#" class="nav-link active" data-section="home"><i class="bi bi-house-door-fill"></i>Beranda</a>
+      <a href="#" class="nav-link" data-section="absensi"><i class="bi bi-check2-square"></i>Absensi</a>
+      <a href="#" class="nav-link" data-section="nilai"><i class="bi bi-journal-text"></i>Nilai & Raport</a>
+      <a href="#" class="nav-link" data-section="tugas"><i class="bi bi-file-earmark-text"></i>Tugas</a>
+      <a href="#" class="nav-link" data-section="materi"><i class="bi bi-folder2-open"></i>Materi & File</a>
+      <a href="#" class="nav-link" data-section="chat"><i class="bi bi-chat-dots"></i>Chat & Pesan</a>
+      <a href="#" class="nav-link" data-section="pengumuman"><i class="bi bi-megaphone-fill"></i>Pengumuman</a>
+      <a href="#" class="nav-link" data-section="jadwal"><i class="bi bi-calendar-event"></i>Jadwal</a>
+      <a href="#" class="nav-link" data-section="profil"><i class="bi bi-person-circle"></i>Profil</a>
+      <a href="#" class="nav-link" data-section="statistik"><i class="bi bi-bar-chart-fill"></i>Statistik</a>
+      <hr class="text-white-10">
+      <button id="logoutBtn" class="btn btn-sm btn-outline-light mt-2"><i class="bi bi-box-arrow-right"></i> Logout</button>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <!-- LOGIN CARD (displayed until login) -->
+    <div id="loginCard" class="card p-4 mx-auto" style="max-width:520px">
+      <h4>Login Siswa</h4>
+      <p class="small text-muted">Masuk dengan akun siswa. Demo: <b>siswa / 11111</b></p>
+      <div class="row g-2">
+        <div class="col-6"><input id="loginUsername" class="form-control" placeholder="Username"></div>
+        <div class="col-6"><input id="loginPassword" type="password" class="form-control" placeholder="Password"></div>
+      </div>
+      <div class="mt-2 d-flex gap-2">
+        <button id="btnLogin" class="btn btn-primary">Masuk</button>
+        <button id="btnDemo" class="btn btn-outline-secondary">Demo</button>
+      </div>
+    </div>
+
+    <!-- Dashboard area (hidden until login) -->
+    <div id="dashboardArea" class="hidden">
+      <div class="topbar">
+        <div>
+          <h3 id="pageTitle">Beranda</h3>
+          <small id="pageSub" class="small-muted">Ringkasan & aktivitas</small>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <input id="globalSearch" class="form-control form-control-sm search-input" placeholder="Cari tugas / materi / pengumuman...">
+          <div class="d-flex align-items-center gap-2">
+            <div id="notifBell" style="position:relative"><button id="btnNotif" class="btn btn-sm btn-outline-secondary"><i class="bi bi-bell"></i></button><span id="notifBadge" class="badge bg-danger text-white" style="position:absolute;top:-6px;right:-6px;display:none">0</span></div>
+            <div class="d-flex align-items-center gap-2"><img id="userPic" src="" class="profile-pic" style="display:none"><strong id="userName"></strong></div>
+            <button id="openProfile" class="btn btn-sm btn-outline-primary">Profil</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sections -->
+      <section id="home" class="section">
+        <div class="row g-3">
+          <div class="col-md-3"><div class="card p-3 shadow-sm"><h6>Total Mata Pelajaran</h6><h3 id="statMapel">0</h3></div></div>
+          <div class="col-md-3"><div class="card p-3 shadow-sm"><h6>Rata-rata Nilai</h6><h3 id="statAvg">-</h3></div></div>
+          <div class="col-md-3"><div class="card p-3 shadow-sm"><h6>Tugas Terbuka</h6><h3 id="statOpenTasks">0</h3></div></div>
+          <div class="col-md-3"><div class="card p-3 shadow-sm"><h6>Pengumuman Baru</h6><h3 id="statPeng">0</h3></div></div>
+        </div>
+        <div class="row mt-3 g-3">
+          <div class="col-md-8"><div class="card p-3 shadow-sm"><h6>Aktivitas Terakhir</h6><ul id="activityList" class="list-unstyled small"></ul></div></div>
+          <div class="col-md-4"><div class="card p-3 shadow-sm"><h6>Quick Actions</h6><button id="quickSubmit" class="btn btn-warning w-100 mb-2">Kumpulkan Tugas</button><button id="quickChat" class="btn btn-primary w-100">Kirim Pesan</button></div></div>
+        </div>
+      </section>
+
+      <!-- Absensi -->
+      <section id="absensi" class="section hidden">
+        <div class="card p-3 shadow-sm mb-3"><div class="d-flex justify-content-between"><h5>Absensi</h5><div><button id="absHadir" class="btn btn-success btn-sm">Absen Hadir</button><button id="absIzin" class="btn btn-outline-secondary btn-sm">Izin</button></div></div>
+        <div class="table-responsive mt-2"><table class="table table-sm table-xs" id="tblAbsensi"><thead><tr><th>#</th><th>Nama</th><th>Kelas</th><th>Status</th><th>Waktu</th></tr></thead><tbody></tbody></table></div></div>
+        <div class="card p-3 shadow-sm mt-2"><h6>Grafik Kehadiran</h6><canvas id="chartAttend" height="120"></canvas></div>
+      </section>
+
+      <!-- Nilai -->
+      <section id="nilai" class="section hidden">
+        <div class="card p-3 shadow-sm mb-3"><div class="d-flex justify-content-between"><h5>Nilai & Raport</h5><div><button id="exportRaport" class="btn btn-sm btn-success">Export CSV</button><button id="printRaport" class="btn btn-sm btn-outline-secondary">Print</button></div></div>
+        <div class="table-responsive mt-2"><table class="table table-sm" id="tblNilai"><thead><tr><th>#</th><th>Mapel</th><th>Nilai</th><th>Keterangan</th></tr></thead><tbody></tbody></table></div></div>
+        <div class="card p-3 shadow-sm"><h6>Grafik Nilai</h6><canvas id="chartNilai" height="120"></canvas></div>
+      </section>
+
+      <!-- Tugas -->
+      <section id="tugas" class="section hidden">
+        <div class="card p-3 shadow-sm mb-3"><div class="d-flex justify-content-between"><h5>Tugas</h5><div><button id="btnKumpul" class="btn btn-warning btn-sm">Kumpulkan</button><button id="btnRiwayat" class="btn btn-outline-primary btn-sm">Riwayat</button></div></div>
+        <div id="listTugas" class="list-group mt-2"></div></div>
+        <div class="card p-3 shadow-sm"><h6>Riwayat Pengumpulan</h6><ul id="historyList" class="small"></ul></div>
+      </section>
+
+      <!-- Materi -->
+      <section id="materi" class="section hidden">
+        <div class="card p-3 shadow-sm mb-3"><div class="d-flex justify-content-between"><h5>Materi & File</h5><div><input id="uploadFile" type="file" class="form-control form-control-sm" /></div></div>
+        <div id="materiList" class="mt-2"></div></div>
+      </section>
+
+      <!-- Chat -->
+      <section id="chat" class="section hidden">
+        <div class="card p-3 shadow-sm"><h5>Chat & Pesan</h5><div id="chatWindow" style="height:300px;overflow:auto;background:#fff;padding:8px;border-radius:8px"></div>
+        <div class="input-group mt-2"><input id="chatInput" class="form-control" placeholder="Tulis pesan..."><button id="chatSend" class="btn btn-primary">Kirim</button></div></div>
+      </section>
+
+      <!-- Pengumuman -->
+      <section id="pengumuman" class="section hidden">
+        <div class="card p-3 shadow-sm"><h5>Pengumuman</h5><div id="pengList" class="mt-2"></div></div>
+      </section>
+
+      <!-- Jadwal -->
+      <section id="jadwal" class="section hidden">
+        <div class="card p-3 shadow-sm"><h5>Jadwal Pelajaran</h5><div id="jadwalArea"></div></div>
+      </section>
+
+      <!-- Profil -->
+      <section id="profil" class="section hidden">
+        <div class="card p-3 shadow-sm"><h5>Profil Saya</h5>
+          <div class="row g-2"><div class="col-md-3 text-center"><img id="fotoProfil" class="profile-pic hidden"><input id="fotoUpload" type="file" accept="image/*" class="form-control form-control-sm mt-2"></div>
+          <div class="col-md-9"><label class="form-label small">Nama</label><input id="inputNama" class="form-control mb-2"><label class="form-label small">Kelas</label><input id="inputKelas" class="form-control mb-2"><label class="form-label small">Email</label><input id="inputEmail" class="form-control mb-2"><label class="form-label small">Ganti Password</label><input id="inputPw" type="password" class="form-control mb-2"></div></div>
+          <div class="mt-2 d-flex gap-2"><button id="saveProfile" class="btn btn-warning">Simpan</button><button id="resetProfile" class="btn btn-outline-secondary">Reset</button></div>
+        </div>
+      </section>
+
+      <!-- Statistik -->
+      <section id="statistik" class="section hidden">
+        <div class="card p-3 shadow-sm"><h5>Statistik & Ranking</h5><div id="statArea"></div></div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- Toasts -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <div id="toastMsg" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body"></div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS (bottom) -->
+<script>
+// ======= Keys & helpers =======
+const KEYS = {siswa:'komputama_siswa_v1', peng:'komputama_pengumuman_v1', tugas:'komputama_tugas_v1', nilai:'komputama_nilai_v1', chat:'komputama_chat_v1', profil:'komputama_profil_v1', attend:'komputama_attend_v1', materi:'komputama_materi_v1', activity:'komputama_activity_v1', jadwal:'komputama_jadwal_v1'};
+function read(k){ try{return JSON.parse(localStorage.getItem(k))||[] }catch(e){return []} }
+function write(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+function showToast(msg){ const el=document.getElementById('toastMsg'); el.querySelector('.toast-body').textContent=msg; new bootstrap.Toast(el).show(); pushAct(msg); }
+function pushAct(text){ const a=read(KEYS.activity); a.unshift({time:new Date().toLocaleString('id-ID'), text}); write(KEYS.activity,a.slice(0,200)); }
+
+// ======= Seed defaults =======
+if(!localStorage.getItem(KEYS.siswa)) write(KEYS.siswa, [{id:'s1',username:'siswa',password:'11111',nama:'Siswa Contoh',kelas:'X TKJ 1',email:'siswa@smk.com'}]);
+if(!localStorage.getItem(KEYS.peng)) write(KEYS.peng, [{id:'p1',judul:'Selamat datang',isi:'Portal siswa telah diperbarui.',date:new Date().toISOString()}]);
+if(!localStorage.getItem(KEYS.tugas)) write(KEYS.tugas, [{id:'t1',judul:'Tugas 1',deskripsi:'Kerjakan soal 1-5',due:new Date(Date.now()+2*86400000).toISOString(),mapel:'Matematika',createdBy:'Guru A'}]);
+if(!localStorage.getItem(KEYS.nilai)) write(KEYS.nilai, [{siswaId:'s1',mapel:'Matematika',nilai:85,keterangan:'Baik'}]);
+if(!localStorage.getItem(KEYS.chat)) write(KEYS.chat, [{from:'Guru',to:'s1',text:'Selamat datang!',time:new Date().toLocaleString()}]);
+if(!localStorage.getItem(KEYS.attend)) write(KEYS.attend, {});
+if(!localStorage.getItem(KEYS.materi)) write(KEYS.materi, [{id:'m1',title:'Materi Pendahuluan',file:'',desc:'Materi minggu pertama',uploadedBy:'Guru A',date:new Date().toISOString()}]);
+if(!localStorage.getItem(KEYS.jadwal)) write(KEYS.jadwal, [{hari:'Senin',jam:'08:00-09:30',mapel:'Matematika'},{hari:'Selasa',jam:'10:00-11:30',mapel:'Bahasa'}]);
+
+// ======= Auth =======
+function currentUser(){ return JSON.parse(localStorage.getItem(KEYS.profil) || 'null'); }
+function setCurrent(u){ localStorage.setItem(KEYS.profil, JSON.stringify(u)); }
+function logout(){ localStorage.removeItem(KEYS.profil); location.reload(); }
+
+document.getElementById('btnLogin').addEventListener('click', ()=>{
+  const u=document.getElementById('loginUsername').value.trim(); const p=document.getElementById('loginPassword').value.trim();
+  const users=read(KEYS.siswa); const found=users.find(x=> (x.username===u||x.id===u) && x.password===p);
+  if(found){ setCurrent(found); initApp(); showToast('Login berhasil — '+found.nama); } else alert('Username/password salah');
+});
+
+document.getElementById('btnDemo').addEventListener('click', ()=>{ const u=read(KEYS.siswa)[0]; setCurrent(u); initApp(); showToast('Masuk demo: '+u.nama); });
+
+document.getElementById('logoutBtn').addEventListener('click', ()=>{ logout(); });
+
+// ======= Init & Navigation =======
+function initApp(){ document.getElementById('loginCard').classList.add('hidden'); document.getElementById('dashboardArea').classList.remove('hidden'); renderAll(); }
+
+// navigation click
+document.querySelectorAll('.sidebar .nav-link').forEach(a=> a.addEventListener('click',(e)=>{ e.preventDefault(); document.querySelectorAll('.sidebar .nav-link').forEach(x=>x.classList.remove('active')); a.classList.add('active'); const sec=a.dataset.section; document.querySelectorAll('.section').forEach(s=> s.classList.add('hidden')); document.getElementById(sec).classList.remove('hidden'); document.getElementById('pageTitle').textContent = a.textContent.trim(); }));
+
+// If already logged in
+if(currentUser()){ initApp(); }
+
+// ======= Render functions =======
+function renderAll(){ renderHome(); renderAbsensi(); renderNilai(); renderTugas(); renderMateri(); renderChat(); renderPengumuman(); renderJadwal(); renderProfile(); renderStats(); renderActivity(); updateNotifBadge(); }
+
+function renderHome(){ const tugas=read(KEYS.tugas); const peng=read(KEYS.peng); const nil=read(KEYS.nilai); const siswa=currentUser(); document.getElementById('statOpenTasks').textContent = tugas.length; document.getElementById('statPeng').textContent = peng.length; const avg = (nil.filter(n=> n.siswaId===siswa.id).reduce((a,b)=>a+b.nilai,0) / Math.max(1, nil.filter(n=> n.siswaId===siswa.id).length))||0; document.getElementById('statAvg').textContent = avg? avg.toFixed(1):'-'; document.getElementById('statMapel').textContent = [...new Set(read(KEYS.nilai).map(n=>n.mapel))].length; }
+
+function renderActivity(){ const act = read(KEYS.activity); const el=document.getElementById('activityList'); el.innerHTML = act.slice(0,8).map(a=>`<li>${a.time} — ${a.text}</li>`).join('') || '<li class="text-muted">Belum ada aktivitas</li>'; }
+
+// Absensi
+function renderAbsensi(){ const students=read(KEYS.siswa); const att=read(KEYS.attend)||{}; const tbody=document.querySelector('#tblAbsensi tbody'); tbody.innerHTML=''; students.forEach((s,i)=>{ const st = att[s.id] && att[s.id].status? att[s.id].status:'Belum'; const time = att[s.id] && att[s.id].time? att[s.id].time:'-'; tbody.innerHTML += `<tr><td>${i+1}</td><td>${s.nama}</td><td>${s.kelas||'-'}</td><td>${st}</td><td>${time}</td></tr>`; }); renderAttendChart(); }
+function markAttendance(status){ const me=currentUser(); if(!me) return alert('Login dulu'); const att=read(KEYS.attend)||{}; att[me.id]={status,time:new Date().toLocaleString()}; write(KEYS.attend,att); showToast('Absensi tersimpan: '+status); renderAbsensi(); }
+
+document.getElementById('absHadir').addEventListener('click', ()=> markAttendance('Hadir'));
+document.getElementById('absIzin').addEventListener('click', ()=> markAttendance('Izin'));
+function renderAttendChart(){ const att = read(KEYS.attend)||{}; const students = read(KEYS.siswa); let hadir=0,izin=0,belum=0; students.forEach(s=>{ const st=att[s.id] && att[s.id].status; if(st==='Hadir') hadir++; else if(st==='Izin') izin++; else belum++; }); const ctx=document.getElementById('chartAttend').getContext('2d'); if(window._chartAttend) window._chartAttend.destroy(); window._chartAttend=new Chart(ctx,{type:'doughnut',data:{labels:['Hadir','Izin','Belum'],datasets:[{data:[hadir,izin,belum]}]},options:{plugins:{legend:{position:'bottom'}}}}); }
+
+// Nilai
+function renderNilai(){ const me=currentUser(); const all=read(KEYS.nilai)||[]; const mine=all.filter(x=> x.siswaId===me.id); const tbody=document.querySelector('#tblNilai tbody'); tbody.innerHTML=''; mine.forEach((n,i)=> tbody.innerHTML += `<tr><td>${i+1}</td><td>${n.mapel}</td><td>${n.nilai}</td><td>${n.keterangan||''}</td></tr>`); renderNilaiChart(mine); }
+function renderNilaiChart(data){ const labels=data.map(d=>d.mapel); const vals=data.map(d=>d.nilai); const ctx=document.getElementById('chartNilai').getContext('2d'); if(window._chartNil) window._chartNil.destroy(); window._chartNil=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'Nilai',data:vals}]},options:{plugins:{legend:{display:false}}}}); }
+
+document.getElementById('exportRaport').addEventListener('click', ()=>{ const me=currentUser(); const vals=read(KEYS.nilai).filter(x=>x.siswaId===me.id); if(vals.length===0) return showToast('Belum ada nilai'); let csv='Mapel,Nilai,Keterangan\n'; vals.forEach(v=> csv+=`"${v.mapel}","${v.nilai}","${v.keterangan||''}"\n`); const b=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(b); const a=document.createElement('a'); a.href=url; a.download='raport_'+me.username+'.csv'; a.click(); URL.revokeObjectURL(url); showToast('Export selesai'); });
+
+document.getElementById('printRaport').addEventListener('click', ()=>{ const w=window.open('','_blank'); w.document.write('<h3>Raport</h3>'+document.getElementById('tblNilai').outerHTML); w.print(); w.close(); });
+
+// Tugas
+function renderTugas(){ const arr=read(KEYS.tugas)||[]; const el=document.getElementById('listTugas'); el.innerHTML=''; arr.forEach(t=>{ const due=t.due? new Date(t.due).toLocaleDateString() : '-'; el.innerHTML += `<div class="list-group-item d-flex justify-content-between align-items-start"><div><b>${t.judul}</b><div class="small text-muted">${t.deskripsi||''}</div><small class="text-muted">Mapel: ${t.mapel} • Tenggat: ${due}</small></div><div><button class="btn btn-sm btn-primary" onclick="doSubmit('${t.id}')">Kumpulkan</button></div></div>`; }); }
+function doSubmit(taskId){ const note=prompt('Masukkan link / catatan pengumpulan:'); if(note===null) return; const me=currentUser(); const subs=read(KEYS.materi+'__subs')||[]; subs.unshift({taskId,siswaId:me.id,note,time:new Date().toLocaleString()}); localStorage.setItem(KEYS.materi+'__subs', JSON.stringify(subs)); showToast('Tugas terkumpul'); renderHistory(); pushAct('Mengumpulkan tugas '+taskId); }
+function renderHistory(){ const me=currentUser(); const subs=JSON.parse(localStorage.getItem(KEYS.materi+'__subs')||'[]'); const el=document.getElementById('historyList'); el.innerHTML = subs.filter(s=>s.siswaId===me.id).map(s=>`<li>${s.time} — ${s.note} (ID:${s.taskId})</li>`).join('') || '<li class="text-muted">Belum ada pengumpulan</li>'; }
+
+document.getElementById('btnKumpul').addEventListener('click', ()=>{ const id=prompt('Masukkan ID tugas:'); if(id) doSubmit(id); });
+
+document.getElementById('btnRiwayat').addEventListener('click', ()=>{ renderHistory(); alert('Riwayat tampil di bawah'); });
+
+// Materi
+function renderMateri(){ const arr=read(KEYS.materi)||[]; const el=document.getElementById('materiList'); el.innerHTML = arr.map(m=>`<div class="mb-2"><b>${m.title}</b><div class="small text-muted">${m.desc}</div><div class="mt-1"><button class="btn btn-sm btn-outline-primary" onclick="downloadMateri('${m.id}')">Download</button></div></div>`).join(''); }
+function downloadMateri(id){ const arr=read(KEYS.materi)||[]; const m=arr.find(x=>x.id===id); if(!m) return; if(m.file){ const link=document.createElement('a'); link.href=m.file; link.download=m.title; link.click(); showToast('Download dimulai'); } else alert('File tidak tersedia'); }
+
+document.getElementById('uploadFile').addEventListener('change', function(e){ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=function(ev){ const arr=read(KEYS.materi); const id='m'+Date.now(); arr.unshift({id,title:f.name,file:ev.target.result,desc:'Diunggah oleh siswa',uploadedBy:currentUser().nama,date:new Date().toISOString()}); write(KEYS.materi,arr); showToast('File diunggah'); renderMateri(); }; r.readAsDataURL(f); });
+
+// Chat
+function renderChat(){ const arr=read(KEYS.chat)||[]; const win=document.getElementById('chatWindow'); win.innerHTML=''; arr.forEach(c=> win.innerHTML += `<div class="mb-2"><b>${c.from}</b> <small class="text-muted">${c.time}</small><div>${c.text}</div></div>`); win.scrollTop = win.scrollHeight; }
+
+document.getElementById('chatSend').addEventListener('click', ()=>{ const txt=document.getElementById('chatInput').value.trim(); if(!txt) return; const me=currentUser(); const arr=read(KEYS.chat); arr.push({from:me.nama||me.username,to:'guru',text:txt,time:new Date().toLocaleString()}); write(KEYS.chat,arr); document.getElementById('chatInput').value=''; renderChat(); showToast('Pesan terkirim'); });
+
+// Pengumuman
+function renderPengumuman(){ const arr=read(KEYS.peng)||[]; const el=document.getElementById('pengList'); el.innerHTML = arr.map(a=>`<div class="mb-2"><b>${a.judul}</b><div class="small text-muted">${a.isi}</div><small class="text-muted">${new Date(a.date).toLocaleString()}</small></div>`).join(''); document.getElementById('statPeng').textContent = arr.length; }
+
+// Jadwal
+function renderJadwal(){ const jad=read(KEYS.jadwal)||[]; document.getElementById('jadwalArea').innerHTML = '<table class="table table-sm"><thead><tr><th>Hari</th><th>Jam</th><th>Mapel</th></tr></thead><tbody>'+ jad.map(j=>`<tr><td>${j.hari}</td><td>${j.jam}</td><td>${j.mapel}</td></tr>`).join('') +'</tbody></table>'; }
+
+// Profil
+function renderProfile(){ const me=currentUser(); if(!me) return; document.getElementById('inputNama').value = me.nama||''; document.getElementById('inputKelas').value = me.kelas||''; document.getElementById('inputEmail').value = me.email||''; if(me.photo){ document.getElementById('fotoProfil').src=me.photo; document.getElementById('fotoProfil').classList.remove('hidden'); document.getElementById('userPic').src=me.photo; document.getElementById('userPic').style.display='inline-block'; } document.getElementById('userName').textContent = me.nama||me.username; }
+
+document.getElementById('fotoUpload').addEventListener('change', function(e){ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=function(ev){ document.getElementById('fotoProfil').src=ev.target.result; document.getElementById('fotoProfil').classList.remove('hidden'); }; r.readAsDataURL(f); });
+
+document.getElementById('saveProfile').addEventListener('click', ()=>{ const me=currentUser(); if(!me) return; me.nama=document.getElementById('inputNama').value.trim(); me.kelas=document.getElementById('inputKelas').value.trim(); me.email=document.getElementById('inputEmail').value.trim(); const pw=document.getElementById('inputPw').value.trim(); if(pw) me.password=pw; const photo=document.getElementById('fotoProfil').src; if(photo) me.photo=photo; const users=read(KEYS.siswa); const idx=users.findIndex(u=>u.id===me.id); if(idx>-1) users[idx]=me; write(KEYS.siswa,users); setCurrent(me); showToast('Profil tersimpan'); renderProfile(); });
+
+document.getElementById('resetProfile').addEventListener('click', ()=>{ if(!confirm('Reset profil ke default?')) return; const me=currentUser(); const users=read(KEYS.siswa); const idx=users.findIndex(u=>u.id===me.id); users[idx]={id:me.id,username:me.username,password:me.password,nama:'Siswa Baru',kelas:'',email:''}; write(KEYS.siswa,users); localStorage.removeItem(KEYS.profil); showToast('Profil direset, silakan login ulang'); setTimeout(()=>location.reload(),600); });
+
+// Statistik & Ranking
+function renderStats(){ const siswa=read(KEYS.siswa); const nilai=read(KEYS.nilai)||[]; const ranks = siswa.map(s=>{ const my=nilai.filter(n=>n.siswaId===s.id); const avg=my.length? Math.round(my.reduce((a,b)=>a+b.nilai,0)/my.length):0; return {id:s.id,nama:s.nama,avg}; }).sort((a,b)=> b.avg - a.avg); document.getElementById('statArea').innerHTML = ranks.map((r,i)=>`<div class="p-2">#${i+1} <b>${r.nama}</b> — Rata-rata: ${r.avg}</div>`).join(''); }
+
+// Notif & polling (simulate realtime)
+function updateNotifBadge(){ const chat=read(KEYS.chat)||[]; const unread = chat.filter(c=> c.to===currentUser().id).length; const b=document.getElementById('notifBadge'); if(unread>0){ b.textContent=unread; b.style.display='inline-block'; } else b.style.display='none'; }
+let lastSnapshot=''; function snapshot(){ lastSnapshot = JSON.stringify({p:read(KEYS.peng),t:read(KEYS.tugas),n:read(KEYS.nilai),c:read(KEYS.chat)}); }
+snapshot(); setInterval(()=>{ const cur = JSON.stringify({p:read(KEYS.peng),t:read(KEYS.tugas),n:read(KEYS.nilai),c:read(KEYS.chat)}); if(cur!==lastSnapshot){ showToast('Perubahan data terdeteksi'); renderAll(); lastSnapshot=cur; } updateNotifBadge(); },3000);
+
+// Quick actions
+document.getElementById('quickSubmit').addEventListener('click', ()=>{ document.querySelector('.sidebar .nav-link[data-section="tugas"]').click(); });
+document.getElementById('quickChat').addEventListener('click', ()=>{ document.querySelector('.sidebar .nav-link[data-section="chat"]').click(); });
+
+// Search
+document.getElementById('globalSearch').addEventListener('input', (e)=>{ const q=e.target.value.toLowerCase(); if(!q) return; const tugas=read(KEYS.tugas).filter(t=> (t.judul+t.deskripsi).toLowerCase().includes(q)); if(tugas.length){ document.querySelector('.sidebar .nav-link[data-section="tugas"]').click(); renderTugasFiltered(tugas); } else { const peng=read(KEYS.peng).filter(p=> (p.judul+p.isi).toLowerCase().includes(q)); if(peng.length){ document.querySelector('.sidebar .nav-link[data-section="pengumuman"]').click(); renderPengFiltered(peng); } } });
+function renderTugasFiltered(arr){ const el=document.getElementById('listTugas'); el.innerHTML=''; arr.forEach(t=> el.innerHTML+=`<div class="list-group-item"><b>${t.judul}</b><div class="small text-muted">${t.deskripsi}</div></div>`); }
+function renderPengFiltered(arr){ document.getElementById('pengList').innerHTML = arr.map(a=>`<div class="mb-2"><b>${a.judul}</b><div class="small text-muted">${a.isi}</div></div>`).join(''); }
+
+// Init render
+renderAll();
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

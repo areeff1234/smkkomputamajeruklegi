@@ -1,1 +1,1 @@
-# smkkomputamajeruklegi
+# smk-komputama-jeruklegi

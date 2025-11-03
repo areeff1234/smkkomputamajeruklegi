@@ -1,0 +1,906 @@
+.hero-section {
+  background: linear-gradient(rgba(0, 0, 80, 0.6), rgba(0, 0, 80, 0.6)),
+              url('background-smk.jpg') center/cover no-repeat;
+  height: 90vh;
+}
+.hero-section h1, .hero-section p {
+  color: #fff;
+}
+.card img {
+  height: 230px;
+  object-fit: cover;
+}
+
+/* Efek galeri */
+.gallery-img {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+.gallery-img:hover {
+  transform: scale(1.05);
+}
+
+/* Tombol scroll ke atas */
+#btnTop {
+  position: fixed;
+  bottom: 30px;
+  right: 25px;
+  display: none;
+  z-index: 99;
+  border: none;
+  outline: none;
+  color: white;
+  background-color: #f0ad4e;
+  cursor: pointer;
+  padding: 10px 15px;
+  font-size: 22px;
+  transition: background 0.3s;
+}
+#btnTop:hover {
+  background-color: #d29c3c;
+}
+
+/* Warna tema elegan */
+.bg-primary {
+  background-color: #002b5b !important;
+}
+.text-primary {
+  color: #002b5b !important;
+}
+.btn-warning {
+  background-color: #f0ad4e;
+  border: none;
+}
+
+/* AOS animation default tweaks */
+[data-aos] {
+  transition-duration: 1s;
+}
+
+.gallery-img {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+.gallery-img:hover {
+  transform: scale(1.05);
+}
+
+/* Tombol scroll ke atas */
+#btnTop {
+  position: fixed;
+  bottom: 30px;
+  right: 25px;
+  display: none;
+  z-index: 99;
+  border: none;
+  outline: none;
+  color: white;
+  background-color: #f0ad4e;
+  cursor: pointer;
+  padding: 10px 15px;
+  font-size: 22px;
+  transition: background 0.3s;
+}
+#btnTop:hover {
+  background-color: #d29c3c;
+}
+
+/* Warna tema elegan */
+.bg-primary { background-color: #002b5b !important; }
+.text-primary { color: #002b5b !important; }
+
+/* Efek ikon */
+.bi {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+.bi:hover {
+  transform: scale(1.2);
+  color: #f0ad4e;
+}
+
+#buku-tamu input {
+  border: 2px solid #002b5b;
+}
+
+#buku-tamu button {
+  background-color: #f0ad4e;
+  border: none;
+  font-weight: bold;
+}
+
+#buku-tamu button:hover {
+  background-color: #d29c3c;
+}
+
+#jurusan .card {
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+#jurusan .card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.bg-cover {
+  background-size: contain; /* bisa juga 'cover' kalau mau isi penuh */
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 200px; /* atur tinggi sesuai kebutuhan */
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+}
+
+.card-img-top {
+  object-fit: contain;
+  width: 100%;
+  max-height: 220px;
+  aspect-ratio: 4 / 3; /* menjaga proporsi */
+}
+
+.dark-mode {
+  background-color: #121212;
+  color: #f1f1f1;
+}
+.dark-mode .card { background-color: #1f1f1f; color: #f1f1f1; }
+
+/* === WARNA & FONT === */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f8f9fa;
+  scroll-behavior: smooth;
+}
+
+/* === LOADING SCREEN === */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: #0056b3;
+  z-index: 9999;
+  animation: fadeOut 1s ease 2s forwards;
+}
+@keyframes fadeOut {
+  to { opacity: 0; visibility: hidden; }
+}
+.animate-spin {
+  animation: spin 1.5s linear infinite;
+}
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+/* === HERO SECTION === */
+#hero {
+  height: 100vh;
+  background: url('hero-bg.jpg') center/cover fixed;
+  position: relative;
+}
+#hero .overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+#hero .content {
+  position: relative;
+  z-index: 2;
+}
+#hero h1 {
+  font-size: 2.5rem;
+}
+#hero .btn {
+  transition: all 0.3s ease;
+}
+#hero .btn:hover {
+  transform: scale(1.05);
+  background-color: #f4b400;
+  border: none;
+}
+
+/* === STATISTIK === */
+.counter {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+/* === GALERI === */
+.gallery-img {
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.gallery-img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+/* === LIGHTBOX === */
+#lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: 0.3s;
+  z-index: 9999;
+}
+#lightbox.show {
+  visibility: visible;
+  opacity: 1;
+}
+#lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
+}
+
+/* ====== CHATBOT STYLE ====== */
+#chatbot #openChat {
+  width: 55px;
+  height: 55px;
+  font-size: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #0056b3;
+  border: none;
+}
+#chatbot #openChat:hover {
+  background-color: #00408a;
+}
+#chatBox {
+  animation: fadeInUp 0.3s ease;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ====== DARK MODE ====== */
+.dark-mode {
+  background-color: #121212 !important;
+  color: #f1f1f1 !important;
+}
+.dark-mode .card,
+.dark-mode .alert {
+  background-color: #1f1f1f !important;
+  color: #f1f1f1 !important;
+}
+.dark-mode .btn-outline-light {
+  border-color: #f4b400;
+  color: #f4b400;
+}
+.dark-mode .btn-outline-light:hover {
+  background-color: #f4b400;
+  color: #000;
+}
+
+/* ====== POPUP ====== */
+#popup {
+  z-index: 2000;
+  width: auto;
+  text-align: center;
+}
+
+/* === DARK MODE === */
+.dark-mode {
+  background-color: #121212 !important;
+  color: #f1f1f1 !important;
+}
+
+.dark-mode section, 
+.dark-mode .card, 
+.dark-mode .navbar, 
+.dark-mode footer {
+  background-color: #1c1c1c !important;
+  color: #f1f1f1 !important;
+}
+
+.dark-mode .btn-primary {
+  background-color: #f4b400 !important;
+  border-color: #f4b400 !important;
+  color: #000 !important;
+}
+
+/* ====== Transisi lembut Dark Mode ====== */
+body {
+  transition: background-color 0.5s, color 0.5s;
+}
+
+.dark-mode .card,
+.dark-mode section,
+.dark-mode footer,
+.dark-mode .navbar {
+  transition: background-color 0.5s, color 0.5s;
+}
+
+/* ====== Chatbot Smooth Fade ====== */
+#chatBox {
+  animation: fadeInUp 0.3s ease;
+}
+
+/* ====== KALENDER SEKOLAH ====== */
+#calendar {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+#calendar table {
+  border-collapse: collapse;
+  width: 100%;
+}
+#calendar th, #calendar td {
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #dee2e6;
+}
+#calendar .calendar-day:hover {
+  background-color: #ffc107;
+  color: #000;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+/* Popup detail kalender */
+#eventModal .modal-content {
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+}
+#eventModal h5 {
+  color: #0d6efd;
+  font-weight: bold;
+}
+
+/* ====== ANIMASI POPUP MODAL ====== */
+.modal.fade .modal-dialog {
+  transform: scale(0.9);
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+}
+
+.modal.show .modal-dialog {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Efek blur pada latar belakang saat modal aktif */
+.modal-backdrop.show {
+  backdrop-filter: blur(5px);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* ====== KALENDER SEKOLAH INTERAKTIF ====== */
+#calendar table {
+  border-radius: 10px;
+  overflow: hidden;
+}
+.calendar-day {
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.calendar-day:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+/* ====== EKSKUL DINAMIS ====== */
+#ekskul .card {
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+#ekskul .card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+}
+.modal-content img {
+  border-radius: 10px;
+}
+
+/* ====== PENGUNJUNG ONLINE ====== */
+#pengunjung {
+  background: linear-gradient(135deg, #007bff, #6610f2);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+#pengunjung::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: url('https://www.transparenttextures.com/patterns/cubes.png');
+  opacity: 0.2;
+}
+#visitorCount {
+  font-size: 3.5rem;
+  letter-spacing: 2px;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* ====== CUACA & JAM REALTIME ====== */
+#cuaca .card {
+  background: #ffffffcc;
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+#cuaca .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+#jamDigital {
+  font-family: 'Courier New', monospace;
+  color: #222;
+  letter-spacing: 2px;
+}
+#suhuSekarang {
+  color: #0d6efd;
+}
+
+/* ====== MODE WARNA OTOMATIS ====== */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.6s ease, color 0.6s ease;
+}
+
+/* Ubah warna komponen utama di dark mode */
+.dark-mode .navbar,
+.dark-mode footer {
+  background-color: #1e1e1e !important;
+  color: #f8f9fa !important;
+}
+
+.dark-mode .card {
+  background-color: #242424;
+  color: #e0e0e0;
+}
+
+.dark-mode section {
+  background-color: #181818 !important;
+  color: #f0f0f0 !important;
+}
+
+.dark-mode .btn {
+  border-color: #f8f9fa;
+}
+
+.dark-mode .btn:hover {
+  background-color: #f8f9fa;
+  color: #121212;
+}
+
+/* Efek hover untuk daftar fasilitas */
+ul.list-unstyled li {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+ul.list-unstyled li:hover {
+  transform: translateX(8px);
+  color: #0d6efd; /* Warna teks berubah jadi biru saat hover */
+}
+
+ul.list-unstyled li:hover i {
+  transform: scale(1.2);
+  color: #ffc107; /* Ikon berubah jadi kuning keemasan saat hover */
+}
+
+.prestasi-card {
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    border-radius: 15px;
+  }
+
+  .prestasi-card:hover {
+    transform: translateY(-10px) scale(1.03);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .prestasi-img {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .prestasi-img img {
+    transition: transform 0.5s ease;
+  }
+
+  .prestasi-card:hover img {
+    transform: scale(1.1);
+  }
+
+  .prestasi-card .badge {
+    font-size: 0.9rem;
+    box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  }
+
+  /* Background lembut gradasi */
+  #struktur {
+    background: linear-gradient(180deg, #f9fbff 0%, #ffffff 100%);
+  }
+
+  /* Card Guru */
+  .teacher-card {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+  }
+
+  .teacher-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .teacher-img {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+
+  .teacher-card:hover .teacher-img {
+    transform: scale(1.1);
+    filter: brightness(80%);
+  }
+
+  /* Overlay Nama Guru */
+  .teacher-overlay {
+    position: absolute;
+    bottom: 0;
+    background: rgba(0, 60, 150, 0.8);
+    color: white;
+    width: 100%;
+    padding: 15px 10px;
+    transform: translateY(100%);
+    transition: transform 0.5s ease;
+  }
+
+  .teacher-card:hover .teacher-overlay {
+    transform: translateY(0);
+  }
+
+  .teacher-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+
+  .teacher-role {
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+
+/* Struktur Guru (Landscape Style) */
+.guru-card {
+  border: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  background-color: #fff;
+  border-radius: 15px;
+}
+
+.guru-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+/* Foto Landscape */
+.guru-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-bottom: 3px solid #0d6efd;
+}
+
+/* Tooltip Guru */
+.tooltip-guru {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(13, 110, 253, 0.9);
+  color: white;
+  font-size: 14px;
+  padding: 8px;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: all 0.3s ease;
+}
+
+.guru-card:hover .tooltip-guru {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ====== EKSKUL STYLE ====== */
+.bg-gradient-light {
+  background: linear-gradient(180deg, #f8f9fa 0%, #e9f3ff 100%);
+}
+
+.ekskul-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.ekskul-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Overlay Efek Gambar */
+.img-overlay {
+  position: relative;
+}
+
+.img-overlay img {
+  height: 180px;
+  width: 100%;
+  object-fit: cover;
+  transition: all 0.4s ease;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
+
+.overlay-text {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(13, 110, 253, 0.8);
+  color: white;
+  font-weight: 500;
+  padding: 6px 0;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.img-overlay:hover img {
+  filter: brightness(0.8);
+  transform: scale(1.05);
+}
+
+.img-overlay:hover .overlay-text {
+  opacity: 1;
+}
+
+/* Modal Styling */
+.modal-content {
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+/* Efek gambar utama */
+.tkj-img {
+  transition: transform 0.4s ease, box-shadow 0.3s ease;
+}
+.tkj-img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Tombol daftar */
+.daftar-btn {
+  transition: all 0.3s ease;
+}
+.daftar-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(255, 193, 7, 0.6);
+}
+
+/* Kartu foto kegiatan */
+.photo-card img {
+  transition: transform 0.5s ease;
+}
+.photo-card:hover img {
+  transform: scale(1.1);
+}
+
+/* Overlay interaktif */
+.photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.photo-card:hover .photo-overlay {
+  opacity: 1;
+}
+
+/* Animasi masuk */
+[data-aos] {
+  transition: all 0.8s ease !important;
+}
+
+/* ====== BUKU TAMU MODERN ====== */
+#guestMessages .message-card {
+  background: #f9fafc;
+  border-left: 4px solid #0d6efd;
+  padding: 12px 15px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  animation: fadeInUp 0.4s ease;
+}
+
+#guestMessages .message-name {
+  font-weight: 600;
+  color: #0d6efd;
+}
+
+#guestMessages .message-time {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Admin Message Style */
+#guestMessages .message-card.admin {
+  background: #fff8e1;
+  border-left: 4px solid #ffc107;
+}
+
+/* ====== BUKU TAMU ANIMASI ====== */
+#guestMessages div {
+  transition: all 0.4s ease;
+}
+#guestMessages div:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Efek muncul (fadeInUp) */
+@keyframes fadeInUp {
+  from {opacity: 0; transform: translateY(20px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+.animate__fadeInUp {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+/* ====== NAVBAR MODERN ====== */
+.navbar-nav .nav-link {
+  color: #f8f9fa !important;
+  transition: 0.3s;
+}
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+  color: #ffc107 !important;
+  transform: translateY(-2px);
+}
+
+.dropdown-menu {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.dropdown-menu .dropdown-item {
+  transition: 0.3s;
+}
+.dropdown-menu .dropdown-item:hover {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+/* Tombol Dark Mode */
+#darkModeBtn {
+  transition: 0.3s;
+}
+#darkModeBtn:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* ====== NAVBAR TERUPDATE ====== */
+.navbar-nav .nav-link {
+  color: #f8f9fa !important;
+  transition: 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+  color: #ffc107 !important;
+  transform: translateY(-2px);
+}
+
+.dropdown-menu {
+  border-radius: 12px;
+  animation: fadeIn 0.3s ease;
+}
+
+.dropdown-menu .dropdown-item {
+  transition: 0.3s;
+}
+.dropdown-menu .dropdown-item:hover {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ====== NAVBAR MODERN ====== */
+.navbar-nav .nav-link {
+  color: #f8f9fa !important;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+  color: #ffc107 !important;
+  transform: translateY(-2px);
+}
+
+.dropdown-menu {
+  border-radius: 12px;
+  animation: fadeIn 0.3s ease;
+}
+
+.dropdown-menu .dropdown-item {
+  transition: 0.3s;
+}
+.dropdown-menu .dropdown-item:hover {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Animasi fade-in saat halaman dimuat */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Efek hover tombol portal */
+.portal-btn {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.portal-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.portal-box { max-width: 500px; margin:auto; margin-top:100px; text-align:center; }
+    .portal-box h1 { margin-bottom: 40px; }
+    .portal-btn { width: 200px; margin: 10px; }
+
+
+
